@@ -1,2 +1,0 @@
-template benchmark/clickbench/clickbench-parquet-e2-24ssd.benchmark.in
-QUERY_NUMBER_PADDED=35
