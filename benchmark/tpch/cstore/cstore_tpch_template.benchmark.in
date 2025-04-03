@@ -1,0 +1,23 @@
+# description: Execute Q${QUERY_NUMBER_PADDED} over lineitem stored in a file
+# group: [cstore]
+
+name Q${QUERY_NUMBER_PADDED} (cstore)
+group cstore
+subgroup tpch
+
+require cstore
+require tpch
+
+load
+CREATE VIEW lineitem AS SELECT * FROM cstore_scan('/data/p4510-1/wutongdb/lineitem/*.pxl');
+CREATE VIEW nation AS SELECT * FROM cstore_scan('/data/p4510-1/wutongdb/nation/*.pxl');
+CREATE VIEW region AS SELECT * FROM cstore_scan('/data/p4510-1/wutongdb/region/*.pxl');
+CREATE VIEW supplier AS SELECT * FROM cstore_scan('/data/p4510-1/wutongdb/supplier/*.pxl');
+CREATE VIEW customer AS SELECT * FROM cstore_scan('/data/p4510-1/wutongdb/customer/*.pxl');
+CREATE VIEW part AS SELECT * FROM cstore_scan('/data/p4510-1/wutongdb/part/*.pxl');
+CREATE VIEW partsupp AS SELECT * FROM cstore_scan('/data/p4510-1/wutongdb/partsupp/*.pxl');
+CREATE VIEW orders AS SELECT * FROM cstore_scan('/data/p4510-1/wutongdb/orders/*.pxl');
+
+run extension/tpch/dbgen/queries/q${QUERY_NUMBER_PADDED}.sql
+
+result extension/tpch/dbgen/answers/sf${SF_NUMBER}/q${QUERY_NUMBER_PADDED}.csv
