@@ -1448,6 +1448,3 @@ if(NOT "${EXTERNAL_EXTENSION_DIRECTORIES}" STREQUAL "")
   endforeach()
 endif()
 
-# Add a parquet example executable
-add_subdirectory(examples/parquet-example)
-
