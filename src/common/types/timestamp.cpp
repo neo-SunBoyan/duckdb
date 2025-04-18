@@ -87,7 +87,7 @@ bool Timestamp::TryConvertTimestampTZ(const char *str, idx_t len, timestamp_t &r
 		return false;
 	}
 	//	We parsed an interval, so make sure it is in range.
-	if (time.micros > Interval::MICROS_PER_DAY) {
+	if (time.micros > Interval::DUCKDB_MICROS_PER_DAY) {
 		return false;
 	}
 	pos += time_pos;
@@ -101,7 +101,7 @@ bool Timestamp::TryConvertTimestampTZ(const char *str, idx_t len, timestamp_t &r
 			pos++;
 			has_offset = true;
 		} else if (Timestamp::TryParseUTCOffset(str, pos, len, hour_offset, minute_offset)) {
-			const int64_t delta = hour_offset * Interval::MICROS_PER_HOUR + minute_offset * Interval::MICROS_PER_MINUTE;
+			const int64_t delta = hour_offset * Interval::DUCKDB_MICROS_PER_HOUR + minute_offset * Interval::DUCKDB_MICROS_PER_MINUTE;
 			if (!TrySubtractOperator::Operation(result.value, delta, result.value)) {
 				return false;
 			}
@@ -163,7 +163,7 @@ bool Timestamp::TryFromTimestampNanos(timestamp_t input, int32_t nanos, timestam
 		return true;
 	}
 	// Scale to ns
-	if (!TryMultiplyOperator::Operation(input.value, Interval::NANOS_PER_MICRO, result.value)) {
+	if (!TryMultiplyOperator::Operation(input.value, Interval::DUCKDB_NANOS_PER_MICRO, result.value)) {
 		return false;
 	}
 
@@ -285,7 +285,7 @@ date_t Timestamp::GetDate(timestamp_t timestamp) {
 	} else if (DUCKDB_UNLIKELY(timestamp == timestamp_t::ninfinity())) {
 		return date_t::ninfinity();
 	}
-	return date_t(UnsafeNumericCast<int32_t>((timestamp.value + (timestamp.value < 0)) / Interval::MICROS_PER_DAY -
+	return date_t(UnsafeNumericCast<int32_t>((timestamp.value + (timestamp.value < 0)) / Interval::DUCKDB_MICROS_PER_DAY -
 	                                         (timestamp.value < 0)));
 }
 
@@ -294,11 +294,11 @@ dtime_t Timestamp::GetTime(timestamp_t timestamp) {
 		throw ConversionException("Can't get TIME of infinite TIMESTAMP");
 	}
 	date_t date = Timestamp::GetDate(timestamp);
-	return dtime_t(timestamp.value - (int64_t(date.days) * int64_t(Interval::MICROS_PER_DAY)));
+	return dtime_t(timestamp.value - (int64_t(date.days) * int64_t(Interval::DUCKDB_MICROS_PER_DAY)));
 }
 
 bool Timestamp::TryFromDatetime(date_t date, dtime_t time, timestamp_t &result) {
-	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, Interval::MICROS_PER_DAY, result.value)) {
+	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, Interval::DUCKDB_MICROS_PER_DAY, result.value)) {
 		return false;
 	}
 	if (!TryAddOperator::Operation<int64_t, int64_t, int64_t>(result.value, time.micros, result.value)) {
@@ -312,7 +312,7 @@ bool Timestamp::TryFromDatetime(date_t date, dtime_tz_t timetz, timestamp_t &res
 		return false;
 	}
 	// Offset is in seconds
-	const auto offset = int64_t(timetz.offset() * Interval::MICROS_PER_SEC);
+	const auto offset = int64_t(timetz.offset() * Interval::DUCKDB_MICROS_PER_SEC);
 	if (!TryAddOperator::Operation(result.value, -offset, result.value)) {
 		return false;
 	}
@@ -330,7 +330,7 @@ timestamp_t Timestamp::FromDatetime(date_t date, dtime_t time) {
 void Timestamp::Convert(timestamp_t timestamp, date_t &out_date, dtime_t &out_time) {
 	out_date = GetDate(timestamp);
 	int64_t days_micros;
-	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(out_date.days, Interval::MICROS_PER_DAY,
+	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(out_date.days, Interval::DUCKDB_MICROS_PER_DAY,
 	                                                               days_micros)) {
 		throw ConversionException("Date out of range in timestamp conversion");
 	}
@@ -339,16 +339,16 @@ void Timestamp::Convert(timestamp_t timestamp, date_t &out_date, dtime_t &out_ti
 }
 
 void Timestamp::Convert(timestamp_ns_t input, date_t &out_date, dtime_t &out_time, int32_t &out_nanos) {
-	timestamp_t ms(input.value / Interval::NANOS_PER_MICRO);
+	timestamp_t ms(input.value / Interval::DUCKDB_NANOS_PER_MICRO);
 	out_date = Timestamp::GetDate(ms);
 	int64_t days_nanos;
-	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(out_date.days, Interval::NANOS_PER_DAY,
+	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(out_date.days, Interval::DUCKDB_NANOS_PER_DAY,
 	                                                               days_nanos)) {
 		throw ConversionException("Date out of range in timestamp_ns conversion");
 	}
 
-	out_time = dtime_t((input.value - days_nanos) / Interval::NANOS_PER_MICRO);
-	out_nanos = UnsafeNumericCast<int32_t>((input.value - days_nanos) % Interval::NANOS_PER_MICRO);
+	out_time = dtime_t((input.value - days_nanos) / Interval::DUCKDB_NANOS_PER_MICRO);
+	out_nanos = UnsafeNumericCast<int32_t>((input.value - days_nanos) % Interval::DUCKDB_NANOS_PER_MICRO);
 }
 
 timestamp_t Timestamp::GetCurrentTimestamp() {
@@ -359,7 +359,7 @@ timestamp_t Timestamp::GetCurrentTimestamp() {
 
 timestamp_t Timestamp::FromEpochSecondsPossiblyInfinite(int64_t sec) {
 	int64_t result;
-	if (!TryMultiplyOperator::Operation(sec, Interval::MICROS_PER_SEC, result)) {
+	if (!TryMultiplyOperator::Operation(sec, Interval::DUCKDB_MICROS_PER_SEC, result)) {
 		throw ConversionException("Could not convert Timestamp(S) to Timestamp(US)");
 	}
 	return timestamp_t(result);
@@ -372,7 +372,7 @@ timestamp_t Timestamp::FromEpochSeconds(int64_t sec) {
 
 timestamp_t Timestamp::FromEpochMsPossiblyInfinite(int64_t ms) {
 	int64_t result;
-	if (!TryMultiplyOperator::Operation(ms, Interval::MICROS_PER_MSEC, result)) {
+	if (!TryMultiplyOperator::Operation(ms, Interval::DUCKDB_MICROS_PER_MSEC, result)) {
 		throw ConversionException("Could not convert Timestamp(MS) to Timestamp(US)");
 	}
 	return timestamp_t(result);
@@ -388,7 +388,7 @@ timestamp_t Timestamp::FromEpochMicroSeconds(int64_t micros) {
 }
 
 timestamp_t Timestamp::FromEpochNanoSecondsPossiblyInfinite(int64_t ns) {
-	return timestamp_t(ns / Interval::NANOS_PER_MICRO);
+	return timestamp_t(ns / Interval::DUCKDB_NANOS_PER_MICRO);
 }
 
 timestamp_t Timestamp::FromEpochNanoSeconds(int64_t ns) {
@@ -399,7 +399,7 @@ timestamp_t Timestamp::FromEpochNanoSeconds(int64_t ns) {
 timestamp_ns_t Timestamp::TimestampNsFromEpochMillis(int64_t millis) {
 	D_ASSERT(Timestamp::IsFinite(timestamp_t(millis)));
 	timestamp_ns_t result;
-	if (!TryMultiplyOperator::Operation(millis, Interval::NANOS_PER_MICRO, result.value)) {
+	if (!TryMultiplyOperator::Operation(millis, Interval::DUCKDB_NANOS_PER_MICRO, result.value)) {
 		throw ConversionException("Could not convert Timestamp(US) to Timestamp(NS)");
 	}
 	return result;
@@ -408,7 +408,7 @@ timestamp_ns_t Timestamp::TimestampNsFromEpochMillis(int64_t millis) {
 timestamp_ns_t Timestamp::TimestampNsFromEpochMicros(int64_t micros) {
 	D_ASSERT(Timestamp::IsFinite(timestamp_t(micros)));
 	timestamp_ns_t result;
-	if (!TryMultiplyOperator::Operation(micros, Interval::NANOS_PER_MSEC, result.value)) {
+	if (!TryMultiplyOperator::Operation(micros, Interval::DUCKDB_NANOS_PER_MSEC, result.value)) {
 		throw ConversionException("Could not convert Timestamp(MS) to Timestamp(NS)");
 	}
 	return result;
@@ -416,12 +416,12 @@ timestamp_ns_t Timestamp::TimestampNsFromEpochMicros(int64_t micros) {
 
 int64_t Timestamp::GetEpochSeconds(timestamp_t timestamp) {
 	D_ASSERT(Timestamp::IsFinite(timestamp));
-	return timestamp.value / Interval::MICROS_PER_SEC;
+	return timestamp.value / Interval::DUCKDB_MICROS_PER_SEC;
 }
 
 int64_t Timestamp::GetEpochMs(timestamp_t timestamp) {
 	D_ASSERT(Timestamp::IsFinite(timestamp));
-	return timestamp.value / Interval::MICROS_PER_MSEC;
+	return timestamp.value / Interval::DUCKDB_MICROS_PER_MSEC;
 }
 
 int64_t Timestamp::GetEpochMicroSeconds(timestamp_t timestamp) {
@@ -430,7 +430,7 @@ int64_t Timestamp::GetEpochMicroSeconds(timestamp_t timestamp) {
 
 bool Timestamp::TryGetEpochNanoSeconds(timestamp_t timestamp, int64_t &result) {
 	D_ASSERT(Timestamp::IsFinite(timestamp));
-	if (!TryMultiplyOperator::Operation(timestamp.value, Interval::NANOS_PER_MICRO, result)) {
+	if (!TryMultiplyOperator::Operation(timestamp.value, Interval::DUCKDB_NANOS_PER_MICRO, result)) {
 		return false;
 	}
 	return true;
@@ -462,7 +462,7 @@ int64_t Timestamp::GetEpochRounded(timestamp_t input, int64_t power_of_ten) {
 
 double Timestamp::GetJulianDay(timestamp_t timestamp) {
 	double result = double(Timestamp::GetTime(timestamp).micros);
-	result /= Interval::MICROS_PER_DAY;
+	result /= Interval::DUCKDB_MICROS_PER_DAY;
 	result += double(Date::ExtractJulianDay(Timestamp::GetDate(timestamp)));
 	return result;
 }

@@ -32,9 +32,9 @@ void IntervalTryAddition(T &target, int64_t input, int64_t multiplier, int64_t f
 		throw OutOfRangeException("interval value is out of range");
 	}
 	if (fraction) {
-		//	Add in (fraction * multiplier) / MICROS_PER_SEC
+		//	Add in (fraction * multiplier) / DUCKDB_MICROS_PER_SEC
 		//	This is always in range
-		addition = (fraction * multiplier) / Interval::MICROS_PER_SEC;
+		addition = (fraction * multiplier) / Interval::DUCKDB_MICROS_PER_SEC;
 		addition_base = Cast::Operation<int64_t, T>(addition);
 		if (!TryAddOperator::Operation<T, T, T>(target, addition_base, target)) {
 			throw OutOfRangeException("interval fraction is out of range");
@@ -170,7 +170,7 @@ interval_parse_identifier:
 
 	// Special case SS[.FFFFFF] - implied SECONDS/MICROSECONDS
 	if (specifier_str.empty() && !found_any) {
-		IntervalTryAddition<int64_t>(result.micros, number, MICROS_PER_SEC);
+		IntervalTryAddition<int64_t>(result.micros, number, DUCKDB_MICROS_PER_SEC);
 		IntervalTryAddition<int64_t>(result.micros, fraction, 1);
 		found_any = true;
 		// parse any trailing whitespace
@@ -193,55 +193,55 @@ interval_parse_identifier:
 	// add the specifier to the interval
 	switch (specifier) {
 	case DatePartSpecifier::MILLENNIUM:
-		IntervalTryAddition<int32_t>(result.months, number, MONTHS_PER_MILLENIUM, fraction);
+		IntervalTryAddition<int32_t>(result.months, number, DUCKDB_MONTHS_PER_MILLENIUM, fraction);
 		break;
 	case DatePartSpecifier::CENTURY:
-		IntervalTryAddition<int32_t>(result.months, number, MONTHS_PER_CENTURY, fraction);
+		IntervalTryAddition<int32_t>(result.months, number, DUCKDB_MONTHS_PER_CENTURY, fraction);
 		break;
 	case DatePartSpecifier::DECADE:
-		IntervalTryAddition<int32_t>(result.months, number, MONTHS_PER_DECADE, fraction);
+		IntervalTryAddition<int32_t>(result.months, number, DUCKDB_MONTHS_PER_DECADE, fraction);
 		break;
 	case DatePartSpecifier::YEAR:
-		IntervalTryAddition<int32_t>(result.months, number, MONTHS_PER_YEAR, fraction);
+		IntervalTryAddition<int32_t>(result.months, number, DUCKDB_MONTHS_PER_YEAR, fraction);
 		break;
 	case DatePartSpecifier::QUARTER:
-		IntervalTryAddition<int32_t>(result.months, number, MONTHS_PER_QUARTER, fraction);
+		IntervalTryAddition<int32_t>(result.months, number, DUCKDB_MONTHS_PER_QUARTER, fraction);
 		// Reduce to fraction of a month
-		fraction *= MONTHS_PER_QUARTER;
-		fraction %= MICROS_PER_SEC;
-		IntervalTryAddition<int32_t>(result.days, 0, DAYS_PER_MONTH, fraction);
+		fraction *= DUCKDB_MONTHS_PER_QUARTER;
+		fraction %= DUCKDB_MICROS_PER_SEC;
+		IntervalTryAddition<int32_t>(result.days, 0, DUCKDB_DAYS_PER_MONTH, fraction);
 		break;
 	case DatePartSpecifier::MONTH:
 		IntervalTryAddition<int32_t>(result.months, number, 1);
-		IntervalTryAddition<int32_t>(result.days, 0, DAYS_PER_MONTH, fraction);
+		IntervalTryAddition<int32_t>(result.days, 0, DUCKDB_DAYS_PER_MONTH, fraction);
 		break;
 	case DatePartSpecifier::DAY:
 		IntervalTryAddition<int32_t>(result.days, number, 1);
-		IntervalTryAddition<int64_t>(result.micros, 0, MICROS_PER_DAY, fraction);
+		IntervalTryAddition<int64_t>(result.micros, 0, DUCKDB_MICROS_PER_DAY, fraction);
 		break;
 	case DatePartSpecifier::WEEK:
-		IntervalTryAddition<int32_t>(result.days, number, DAYS_PER_WEEK, fraction);
+		IntervalTryAddition<int32_t>(result.days, number, DUCKDB_DAYS_PER_WEEK, fraction);
 		// Reduce to fraction of a day
-		fraction *= DAYS_PER_WEEK;
-		fraction %= MICROS_PER_SEC;
-		IntervalTryAddition<int64_t>(result.micros, 0, MICROS_PER_DAY, fraction);
+		fraction *= DUCKDB_DAYS_PER_WEEK;
+		fraction %= DUCKDB_MICROS_PER_SEC;
+		IntervalTryAddition<int64_t>(result.micros, 0, DUCKDB_MICROS_PER_DAY, fraction);
 		break;
 	case DatePartSpecifier::MICROSECONDS:
 		// Round the fraction
-		number += (fraction * 2) / MICROS_PER_SEC;
+		number += (fraction * 2) / DUCKDB_MICROS_PER_SEC;
 		IntervalTryAddition<int64_t>(result.micros, number, 1);
 		break;
 	case DatePartSpecifier::MILLISECONDS:
-		IntervalTryAddition<int64_t>(result.micros, number, MICROS_PER_MSEC, fraction);
+		IntervalTryAddition<int64_t>(result.micros, number, DUCKDB_MICROS_PER_MSEC, fraction);
 		break;
 	case DatePartSpecifier::SECOND:
-		IntervalTryAddition<int64_t>(result.micros, number, MICROS_PER_SEC, fraction);
+		IntervalTryAddition<int64_t>(result.micros, number, DUCKDB_MICROS_PER_SEC, fraction);
 		break;
 	case DatePartSpecifier::MINUTE:
-		IntervalTryAddition<int64_t>(result.micros, number, MICROS_PER_MINUTE, fraction);
+		IntervalTryAddition<int64_t>(result.micros, number, DUCKDB_MICROS_PER_MINUTE, fraction);
 		break;
 	case DatePartSpecifier::HOUR:
-		IntervalTryAddition<int64_t>(result.micros, number, MICROS_PER_HOUR, fraction);
+		IntervalTryAddition<int64_t>(result.micros, number, DUCKDB_MICROS_PER_HOUR, fraction);
 		break;
 	default:
 		HandleCastError::AssignError(
@@ -297,10 +297,10 @@ string Interval::ToString(const interval_t &interval) {
 
 int64_t Interval::GetMilli(const interval_t &val) {
 	int64_t milli_month, milli_day, milli;
-	if (!TryMultiplyOperator::Operation((int64_t)val.months, Interval::MICROS_PER_MONTH / 1000, milli_month)) {
+	if (!TryMultiplyOperator::Operation((int64_t)val.months, Interval::DUCKDB_MICROS_PER_MONTH / 1000, milli_month)) {
 		throw ConversionException("Could not convert Interval to Milliseconds");
 	}
-	if (!TryMultiplyOperator::Operation((int64_t)val.days, Interval::MICROS_PER_DAY / 1000, milli_day)) {
+	if (!TryMultiplyOperator::Operation((int64_t)val.days, Interval::DUCKDB_MICROS_PER_DAY / 1000, milli_day)) {
 		throw ConversionException("Could not convert Interval to Milliseconds");
 	}
 	milli = val.micros / 1000;
@@ -316,10 +316,10 @@ int64_t Interval::GetMilli(const interval_t &val) {
 int64_t Interval::GetMicro(const interval_t &val) {
 	int64_t micro_month, micro_day, micro_total;
 	micro_total = val.micros;
-	if (!TryMultiplyOperator::Operation((int64_t)val.months, MICROS_PER_MONTH, micro_month)) {
+	if (!TryMultiplyOperator::Operation((int64_t)val.months, DUCKDB_MICROS_PER_MONTH, micro_month)) {
 		throw ConversionException("Could not convert Month to Microseconds");
 	}
-	if (!TryMultiplyOperator::Operation((int64_t)val.days, MICROS_PER_DAY, micro_day)) {
+	if (!TryMultiplyOperator::Operation((int64_t)val.days, DUCKDB_MICROS_PER_DAY, micro_day)) {
 		throw ConversionException("Could not convert Day to Microseconds");
 	}
 	if (!TryAddOperator::Operation<int64_t, int64_t, int64_t>(micro_total, micro_month, micro_total)) {
@@ -335,7 +335,7 @@ int64_t Interval::GetMicro(const interval_t &val) {
 int64_t Interval::GetNanoseconds(const interval_t &val) {
 	int64_t nano;
 	const auto micro_total = GetMicro(val);
-	if (!TryMultiplyOperator::Operation(micro_total, NANOS_PER_MICRO, nano)) {
+	if (!TryMultiplyOperator::Operation(micro_total, DUCKDB_NANOS_PER_MICRO, nano)) {
 		throw ConversionException("Could not convert Interval to Nanoseconds");
 	}
 
@@ -385,19 +385,19 @@ interval_t Interval::GetAge(timestamp_t timestamp_1, timestamp_t timestamp_2) {
 	}
 	// now propagate any negative field into the next higher field
 	while (micros_diff < 0) {
-		micros_diff += MICROS_PER_SEC;
+		micros_diff += DUCKDB_MICROS_PER_SEC;
 		sec_diff--;
 	}
 	while (sec_diff < 0) {
-		sec_diff += SECS_PER_MINUTE;
+		sec_diff += DUCKDB_SECS_PER_MINUTE;
 		min_diff--;
 	}
 	while (min_diff < 0) {
-		min_diff += MINS_PER_HOUR;
+		min_diff += DUCKDB_MINS_PER_HOUR;
 		hour_diff--;
 	}
 	while (hour_diff < 0) {
-		hour_diff += HOURS_PER_DAY;
+		hour_diff += DUCKDB_HOURS_PER_DAY;
 		day_diff--;
 	}
 	while (day_diff < 0) {
@@ -410,7 +410,7 @@ interval_t Interval::GetAge(timestamp_t timestamp_1, timestamp_t timestamp_2) {
 		}
 	}
 	while (month_diff < 0) {
-		month_diff += MONTHS_PER_YEAR;
+		month_diff += DUCKDB_MONTHS_PER_YEAR;
 		year_diff--;
 	}
 
@@ -425,7 +425,7 @@ interval_t Interval::GetAge(timestamp_t timestamp_1, timestamp_t timestamp_2) {
 		micros_diff = -micros_diff;
 	}
 	interval_t interval;
-	interval.months = year_diff * MONTHS_PER_YEAR + month_diff;
+	interval.months = year_diff * DUCKDB_MONTHS_PER_YEAR + month_diff;
 	interval.days = day_diff;
 	interval.micros = Time::FromTime(hour_diff, min_diff, sec_diff, micros_diff).micros;
 
@@ -448,8 +448,8 @@ interval_t Interval::GetDifference(timestamp_t timestamp_1, timestamp_t timestam
 interval_t Interval::FromMicro(int64_t delta_us) {
 	interval_t result;
 	result.months = 0;
-	result.days = UnsafeNumericCast<int32_t>(delta_us / Interval::MICROS_PER_DAY);
-	result.micros = delta_us % Interval::MICROS_PER_DAY;
+	result.days = UnsafeNumericCast<int32_t>(delta_us / Interval::DUCKDB_MICROS_PER_DAY);
+	result.micros = delta_us % Interval::DUCKDB_MICROS_PER_DAY;
 
 	return result;
 }
@@ -469,15 +469,15 @@ date_t Interval::Add(date_t left, interval_t right) {
 	if (right.months != 0) {
 		int32_t year, month, day;
 		Date::Convert(left, year, month, day);
-		int32_t year_diff = right.months / Interval::MONTHS_PER_YEAR;
+		int32_t year_diff = right.months / Interval::DUCKDB_MONTHS_PER_YEAR;
 		year += year_diff;
-		month += right.months - year_diff * Interval::MONTHS_PER_YEAR;
-		if (month > Interval::MONTHS_PER_YEAR) {
+		month += right.months - year_diff * Interval::DUCKDB_MONTHS_PER_YEAR;
+		if (month > Interval::DUCKDB_MONTHS_PER_YEAR) {
 			year++;
-			month -= Interval::MONTHS_PER_YEAR;
+			month -= Interval::DUCKDB_MONTHS_PER_YEAR;
 		} else if (month <= 0) {
 			year--;
-			month += Interval::MONTHS_PER_YEAR;
+			month += Interval::DUCKDB_MONTHS_PER_YEAR;
 		}
 		day = MinValue<int32_t>(day, Date::MonthDays(year, month));
 		result = Date::FromDate(year, month, day);
@@ -490,7 +490,7 @@ date_t Interval::Add(date_t left, interval_t right) {
 		}
 	}
 	if (right.micros != 0) {
-		if (!TryAddOperator::Operation(result.days, int32_t(right.micros / Interval::MICROS_PER_DAY), result.days)) {
+		if (!TryAddOperator::Operation(result.days, int32_t(right.micros / Interval::DUCKDB_MICROS_PER_DAY), result.days)) {
 			throw OutOfRangeException("Date out of range");
 		}
 	}
@@ -501,13 +501,13 @@ date_t Interval::Add(date_t left, interval_t right) {
 }
 
 dtime_t Interval::Add(dtime_t left, interval_t right, date_t &date) {
-	int64_t diff = right.micros - ((right.micros / Interval::MICROS_PER_DAY) * Interval::MICROS_PER_DAY);
+	int64_t diff = right.micros - ((right.micros / Interval::DUCKDB_MICROS_PER_DAY) * Interval::DUCKDB_MICROS_PER_DAY);
 	left += diff;
-	if (left.micros >= Interval::MICROS_PER_DAY) {
-		left.micros -= Interval::MICROS_PER_DAY;
+	if (left.micros >= Interval::DUCKDB_MICROS_PER_DAY) {
+		left.micros -= Interval::DUCKDB_MICROS_PER_DAY;
 		date.days++;
 	} else if (left.micros < 0) {
-		left.micros += Interval::MICROS_PER_DAY;
+		left.micros += Interval::DUCKDB_MICROS_PER_DAY;
 		date.days--;
 	}
 	return left;

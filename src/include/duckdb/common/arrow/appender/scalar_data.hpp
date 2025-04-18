@@ -31,7 +31,7 @@ struct ArrowIntervalConverter {
 		ArrowInterval result;
 		result.months = input.months;
 		result.days = input.days;
-		result.nanoseconds = input.micros * Interval::NANOS_PER_MICRO;
+		result.nanoseconds = input.micros * Interval::DUCKDB_NANOS_PER_MICRO;
 		return result;
 	}
 

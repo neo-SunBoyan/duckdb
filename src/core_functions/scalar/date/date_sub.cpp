@@ -70,49 +70,49 @@ struct DateSub {
 	struct QuarterOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA start_ts, TB end_ts) {
-			return MonthOperator::Operation<TA, TB, TR>(start_ts, end_ts) / Interval::MONTHS_PER_QUARTER;
+			return MonthOperator::Operation<TA, TB, TR>(start_ts, end_ts) / Interval::DUCKDB_MONTHS_PER_QUARTER;
 		}
 	};
 
 	struct YearOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA start_ts, TB end_ts) {
-			return MonthOperator::Operation<TA, TB, TR>(start_ts, end_ts) / Interval::MONTHS_PER_YEAR;
+			return MonthOperator::Operation<TA, TB, TR>(start_ts, end_ts) / Interval::DUCKDB_MONTHS_PER_YEAR;
 		}
 	};
 
 	struct DecadeOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA start_ts, TB end_ts) {
-			return MonthOperator::Operation<TA, TB, TR>(start_ts, end_ts) / Interval::MONTHS_PER_DECADE;
+			return MonthOperator::Operation<TA, TB, TR>(start_ts, end_ts) / Interval::DUCKDB_MONTHS_PER_DECADE;
 		}
 	};
 
 	struct CenturyOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA start_ts, TB end_ts) {
-			return MonthOperator::Operation<TA, TB, TR>(start_ts, end_ts) / Interval::MONTHS_PER_CENTURY;
+			return MonthOperator::Operation<TA, TB, TR>(start_ts, end_ts) / Interval::DUCKDB_MONTHS_PER_CENTURY;
 		}
 	};
 
 	struct MilleniumOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA start_ts, TB end_ts) {
-			return MonthOperator::Operation<TA, TB, TR>(start_ts, end_ts) / Interval::MONTHS_PER_MILLENIUM;
+			return MonthOperator::Operation<TA, TB, TR>(start_ts, end_ts) / Interval::DUCKDB_MONTHS_PER_MILLENIUM;
 		}
 	};
 
 	struct DayOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA startdate, TB enddate) {
-			return SubtractMicros(startdate, enddate) / Interval::MICROS_PER_DAY;
+			return SubtractMicros(startdate, enddate) / Interval::DUCKDB_MICROS_PER_DAY;
 		}
 	};
 
 	struct WeekOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA startdate, TB enddate) {
-			return SubtractMicros(startdate, enddate) / Interval::MICROS_PER_WEEK;
+			return SubtractMicros(startdate, enddate) / Interval::DUCKDB_MICROS_PER_WEEK;
 		}
 	};
 
@@ -126,28 +126,28 @@ struct DateSub {
 	struct MillisecondsOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA startdate, TB enddate) {
-			return SubtractMicros(startdate, enddate) / Interval::MICROS_PER_MSEC;
+			return SubtractMicros(startdate, enddate) / Interval::DUCKDB_MICROS_PER_MSEC;
 		}
 	};
 
 	struct SecondsOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA startdate, TB enddate) {
-			return SubtractMicros(startdate, enddate) / Interval::MICROS_PER_SEC;
+			return SubtractMicros(startdate, enddate) / Interval::DUCKDB_MICROS_PER_SEC;
 		}
 	};
 
 	struct MinutesOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA startdate, TB enddate) {
-			return SubtractMicros(startdate, enddate) / Interval::MICROS_PER_MINUTE;
+			return SubtractMicros(startdate, enddate) / Interval::DUCKDB_MICROS_PER_MINUTE;
 		}
 	};
 
 	struct HoursOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA startdate, TB enddate) {
-			return SubtractMicros(startdate, enddate) / Interval::MICROS_PER_HOUR;
+			return SubtractMicros(startdate, enddate) / Interval::DUCKDB_MICROS_PER_HOUR;
 		}
 	};
 };
@@ -292,22 +292,22 @@ int64_t DateSub::MicrosecondsOperator::Operation(dtime_t startdate, dtime_t endd
 
 template <>
 int64_t DateSub::MillisecondsOperator::Operation(dtime_t startdate, dtime_t enddate) {
-	return (enddate.micros - startdate.micros) / Interval::MICROS_PER_MSEC;
+	return (enddate.micros - startdate.micros) / Interval::DUCKDB_MICROS_PER_MSEC;
 }
 
 template <>
 int64_t DateSub::SecondsOperator::Operation(dtime_t startdate, dtime_t enddate) {
-	return (enddate.micros - startdate.micros) / Interval::MICROS_PER_SEC;
+	return (enddate.micros - startdate.micros) / Interval::DUCKDB_MICROS_PER_SEC;
 }
 
 template <>
 int64_t DateSub::MinutesOperator::Operation(dtime_t startdate, dtime_t enddate) {
-	return (enddate.micros - startdate.micros) / Interval::MICROS_PER_MINUTE;
+	return (enddate.micros - startdate.micros) / Interval::DUCKDB_MICROS_PER_MINUTE;
 }
 
 template <>
 int64_t DateSub::HoursOperator::Operation(dtime_t startdate, dtime_t enddate) {
-	return (enddate.micros - startdate.micros) / Interval::MICROS_PER_HOUR;
+	return (enddate.micros - startdate.micros) / Interval::DUCKDB_MICROS_PER_HOUR;
 }
 
 template <typename TA, typename TB, typename TR>

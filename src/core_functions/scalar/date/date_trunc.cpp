@@ -81,7 +81,7 @@ struct DateTrunc {
 		template <class TA, class TR>
 		static inline TR Operation(TA input) {
 			date_t date = Date::GetMondayOfCurrentWeek(input);
-			date.days -= (Date::ExtractISOWeekNumber(date) - 1) * Interval::DAYS_PER_WEEK;
+			date.days -= (Date::ExtractISOWeekNumber(date) - 1) * Interval::DUCKDB_DAYS_PER_WEEK;
 
 			return date;
 		}
@@ -138,7 +138,7 @@ struct DateTrunc {
 			dtime_t time;
 			Timestamp::Convert(input, date, time);
 			Time::Convert(time, hour, min, sec, micros);
-			micros -= UnsafeNumericCast<int32_t>(micros % Interval::MICROS_PER_MSEC);
+			micros -= UnsafeNumericCast<int32_t>(micros % Interval::DUCKDB_MICROS_PER_MSEC);
 			return Timestamp::FromDatetime(date, Time::FromTime(hour, min, sec, micros));
 		}
 	};
@@ -367,7 +367,7 @@ template <>
 interval_t DateTrunc::MillenniumOperator::Operation(interval_t input) {
 	input.days = 0;
 	input.micros = 0;
-	input.months = (input.months / Interval::MONTHS_PER_MILLENIUM) * Interval::MONTHS_PER_MILLENIUM;
+	input.months = (input.months / Interval::DUCKDB_MONTHS_PER_MILLENIUM) * Interval::DUCKDB_MONTHS_PER_MILLENIUM;
 	return input;
 }
 
@@ -375,7 +375,7 @@ template <>
 interval_t DateTrunc::CenturyOperator::Operation(interval_t input) {
 	input.days = 0;
 	input.micros = 0;
-	input.months = (input.months / Interval::MONTHS_PER_CENTURY) * Interval::MONTHS_PER_CENTURY;
+	input.months = (input.months / Interval::DUCKDB_MONTHS_PER_CENTURY) * Interval::DUCKDB_MONTHS_PER_CENTURY;
 	return input;
 }
 
@@ -383,7 +383,7 @@ template <>
 interval_t DateTrunc::DecadeOperator::Operation(interval_t input) {
 	input.days = 0;
 	input.micros = 0;
-	input.months = (input.months / Interval::MONTHS_PER_DECADE) * Interval::MONTHS_PER_DECADE;
+	input.months = (input.months / Interval::DUCKDB_MONTHS_PER_DECADE) * Interval::DUCKDB_MONTHS_PER_DECADE;
 	return input;
 }
 
@@ -391,7 +391,7 @@ template <>
 interval_t DateTrunc::YearOperator::Operation(interval_t input) {
 	input.days = 0;
 	input.micros = 0;
-	input.months = (input.months / Interval::MONTHS_PER_YEAR) * Interval::MONTHS_PER_YEAR;
+	input.months = (input.months / Interval::DUCKDB_MONTHS_PER_YEAR) * Interval::DUCKDB_MONTHS_PER_YEAR;
 	return input;
 }
 
@@ -399,7 +399,7 @@ template <>
 interval_t DateTrunc::QuarterOperator::Operation(interval_t input) {
 	input.days = 0;
 	input.micros = 0;
-	input.months = (input.months / Interval::MONTHS_PER_QUARTER) * Interval::MONTHS_PER_QUARTER;
+	input.months = (input.months / Interval::DUCKDB_MONTHS_PER_QUARTER) * Interval::DUCKDB_MONTHS_PER_QUARTER;
 	return input;
 }
 
@@ -413,7 +413,7 @@ interval_t DateTrunc::MonthOperator::Operation(interval_t input) {
 template <>
 interval_t DateTrunc::WeekOperator::Operation(interval_t input) {
 	input.micros = 0;
-	input.days = (input.days / Interval::DAYS_PER_WEEK) * Interval::DAYS_PER_WEEK;
+	input.days = (input.days / Interval::DUCKDB_DAYS_PER_WEEK) * Interval::DUCKDB_DAYS_PER_WEEK;
 	return input;
 }
 
@@ -430,25 +430,25 @@ interval_t DateTrunc::DayOperator::Operation(interval_t input) {
 
 template <>
 interval_t DateTrunc::HourOperator::Operation(interval_t input) {
-	input.micros = (input.micros / Interval::MICROS_PER_HOUR) * Interval::MICROS_PER_HOUR;
+	input.micros = (input.micros / Interval::DUCKDB_MICROS_PER_HOUR) * Interval::DUCKDB_MICROS_PER_HOUR;
 	return input;
 }
 
 template <>
 interval_t DateTrunc::MinuteOperator::Operation(interval_t input) {
-	input.micros = (input.micros / Interval::MICROS_PER_MINUTE) * Interval::MICROS_PER_MINUTE;
+	input.micros = (input.micros / Interval::DUCKDB_MICROS_PER_MINUTE) * Interval::DUCKDB_MICROS_PER_MINUTE;
 	return input;
 }
 
 template <>
 interval_t DateTrunc::SecondOperator::Operation(interval_t input) {
-	input.micros = (input.micros / Interval::MICROS_PER_SEC) * Interval::MICROS_PER_SEC;
+	input.micros = (input.micros / Interval::DUCKDB_MICROS_PER_SEC) * Interval::DUCKDB_MICROS_PER_SEC;
 	return input;
 }
 
 template <>
 interval_t DateTrunc::MillisecondOperator::Operation(interval_t input) {
-	input.micros = (input.micros / Interval::MICROS_PER_MSEC) * Interval::MICROS_PER_MSEC;
+	input.micros = (input.micros / Interval::DUCKDB_MICROS_PER_MSEC) * Interval::DUCKDB_MICROS_PER_MSEC;
 	return input;
 }
 

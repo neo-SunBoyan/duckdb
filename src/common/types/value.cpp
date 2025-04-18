@@ -243,8 +243,8 @@ Value Value::MinimumValue(const LogicalType &type) {
 	case LogicalTypeId::TIMESTAMP_NS: {
 		// Clear the fractional day.
 		auto min_ns = NumericLimits<int64_t>::Minimum();
-		min_ns /= Interval::NANOS_PER_DAY;
-		min_ns *= Interval::NANOS_PER_DAY;
+		min_ns /= Interval::DUCKDB_NANOS_PER_DAY;
+		min_ns *= Interval::DUCKDB_NANOS_PER_DAY;
 		return Value::TIMESTAMPNS(timestamp_t(min_ns));
 	}
 	case LogicalTypeId::TIME_TZ:
@@ -316,7 +316,7 @@ Value Value::MaximumValue(const LogicalType &type) {
 		return Value::DATE(Date::FromDate(Date::DATE_MAX_YEAR, Date::DATE_MAX_MONTH, Date::DATE_MAX_DAY));
 	case LogicalTypeId::TIME:
 		//	24:00:00 according to PG
-		return Value::TIME(dtime_t(Interval::MICROS_PER_DAY));
+		return Value::TIME(dtime_t(Interval::DUCKDB_MICROS_PER_DAY));
 	case LogicalTypeId::TIMESTAMP:
 		return Value::TIMESTAMP(timestamp_t(NumericLimits<int64_t>::Maximum() - 1));
 	case LogicalTypeId::TIMESTAMP_MS: {
@@ -333,7 +333,7 @@ Value Value::MaximumValue(const LogicalType &type) {
 	}
 	case LogicalTypeId::TIME_TZ:
 		//	"24:00:00-1559" from the PG docs but actually "24:00:00-15:59:59"
-		return Value::TIMETZ(dtime_tz_t(dtime_t(Interval::MICROS_PER_DAY), dtime_tz_t::MIN_OFFSET));
+		return Value::TIMETZ(dtime_tz_t(dtime_t(Interval::DUCKDB_MICROS_PER_DAY), dtime_tz_t::MIN_OFFSET));
 	case LogicalTypeId::TIMESTAMP_TZ:
 		return MaximumValue(LogicalType::TIMESTAMP);
 	case LogicalTypeId::FLOAT:

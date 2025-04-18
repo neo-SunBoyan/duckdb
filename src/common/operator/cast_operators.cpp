@@ -1105,7 +1105,7 @@ timestamp_t CastTimestampUsToMs::Operation(timestamp_t input) {
 	if (!Timestamp::IsFinite(input)) {
 		return input;
 	}
-	timestamp_t cast_timestamp(Timestamp::GetEpochRounded(input, Interval::MICROS_PER_MSEC));
+	timestamp_t cast_timestamp(Timestamp::GetEpochRounded(input, Interval::DUCKDB_MICROS_PER_MSEC));
 	return cast_timestamp;
 }
 
@@ -1123,7 +1123,7 @@ timestamp_t CastTimestampUsToSec::Operation(timestamp_t input) {
 	if (!Timestamp::IsFinite(input)) {
 		return input;
 	}
-	timestamp_t cast_timestamp(Timestamp::GetEpochRounded(input, Interval::MICROS_PER_SEC));
+	timestamp_t cast_timestamp(Timestamp::GetEpochRounded(input, Interval::DUCKDB_MICROS_PER_SEC));
 	return cast_timestamp;
 }
 
@@ -1251,7 +1251,7 @@ bool TryCastToTimestampNS::Operation(date_t input, timestamp_ns_t &result, bool 
 	if (!Timestamp::IsFinite(result)) {
 		return true;
 	}
-	if (!TryMultiplyOperator::Operation(result.value, Interval::NANOS_PER_MICRO, result.value)) {
+	if (!TryMultiplyOperator::Operation(result.value, Interval::DUCKDB_NANOS_PER_MICRO, result.value)) {
 		return false;
 	}
 	return true;
@@ -1265,7 +1265,7 @@ bool TryCastToTimestampMS::Operation(date_t input, timestamp_t &result, bool str
 	if (!Timestamp::IsFinite(result)) {
 		return true;
 	}
-	result.value /= Interval::MICROS_PER_MSEC;
+	result.value /= Interval::DUCKDB_MICROS_PER_MSEC;
 	return true;
 }
 
@@ -1277,7 +1277,7 @@ bool TryCastToTimestampSec::Operation(date_t input, timestamp_t &result, bool st
 	if (!Timestamp::IsFinite(result)) {
 		return true;
 	}
-	result.value /= Interval::MICROS_PER_MSEC * Interval::MSECS_PER_SEC;
+	result.value /= Interval::DUCKDB_MICROS_PER_MSEC * Interval::DUCKDB_MSECS_PER_SEC;
 	return true;
 }
 

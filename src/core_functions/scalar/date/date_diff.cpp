@@ -83,8 +83,8 @@ struct DateDiff {
 			int32_t end_year, end_month, end_day;
 			Date::Convert(enddate, end_year, end_month, end_day);
 
-			return (end_year * 12 + end_month - 1) / Interval::MONTHS_PER_QUARTER -
-			       (start_year * 12 + start_month - 1) / Interval::MONTHS_PER_QUARTER;
+			return (end_year * 12 + end_month - 1) / Interval::DUCKDB_MONTHS_PER_QUARTER -
+			       (start_year * 12 + start_month - 1) / Interval::DUCKDB_MONTHS_PER_QUARTER;
 		}
 	};
 
@@ -92,7 +92,7 @@ struct DateDiff {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA startdate, TB enddate) {
 			//	Weeks do not count Monday crossings, just distance
-			return (enddate.days - startdate.days) / Interval::DAYS_PER_WEEK;
+			return (enddate.days - startdate.days) / Interval::DUCKDB_DAYS_PER_WEEK;
 		}
 	};
 
@@ -113,8 +113,8 @@ struct DateDiff {
 	struct MillisecondsOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA startdate, TB enddate) {
-			return Date::EpochMicroseconds(enddate) / Interval::MICROS_PER_MSEC -
-			       Date::EpochMicroseconds(startdate) / Interval::MICROS_PER_MSEC;
+			return Date::EpochMicroseconds(enddate) / Interval::DUCKDB_MICROS_PER_MSEC -
+			       Date::EpochMicroseconds(startdate) / Interval::DUCKDB_MICROS_PER_MSEC;
 		}
 	};
 
@@ -128,15 +128,15 @@ struct DateDiff {
 	struct MinutesOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA startdate, TB enddate) {
-			return Date::Epoch(enddate) / Interval::SECS_PER_MINUTE -
-			       Date::Epoch(startdate) / Interval::SECS_PER_MINUTE;
+			return Date::Epoch(enddate) / Interval::DUCKDB_SECS_PER_MINUTE -
+			       Date::Epoch(startdate) / Interval::DUCKDB_SECS_PER_MINUTE;
 		}
 	};
 
 	struct HoursOperator {
 		template <class TA, class TB, class TR>
 		static inline TR Operation(TA startdate, TB enddate) {
-			return Date::Epoch(enddate) / Interval::SECS_PER_HOUR - Date::Epoch(startdate) / Interval::SECS_PER_HOUR;
+			return Date::Epoch(enddate) / Interval::DUCKDB_SECS_PER_HOUR - Date::Epoch(startdate) / Interval::DUCKDB_SECS_PER_HOUR;
 		}
 	};
 };
@@ -218,16 +218,16 @@ template <>
 int64_t DateDiff::MinutesOperator::Operation(timestamp_t startdate, timestamp_t enddate) {
 	D_ASSERT(Timestamp::IsFinite(startdate));
 	D_ASSERT(Timestamp::IsFinite(enddate));
-	return Timestamp::GetEpochSeconds(enddate) / Interval::SECS_PER_MINUTE -
-	       Timestamp::GetEpochSeconds(startdate) / Interval::SECS_PER_MINUTE;
+	return Timestamp::GetEpochSeconds(enddate) / Interval::DUCKDB_SECS_PER_MINUTE -
+	       Timestamp::GetEpochSeconds(startdate) / Interval::DUCKDB_SECS_PER_MINUTE;
 }
 
 template <>
 int64_t DateDiff::HoursOperator::Operation(timestamp_t startdate, timestamp_t enddate) {
 	D_ASSERT(Timestamp::IsFinite(startdate));
 	D_ASSERT(Timestamp::IsFinite(enddate));
-	return Timestamp::GetEpochSeconds(enddate) / Interval::SECS_PER_HOUR -
-	       Timestamp::GetEpochSeconds(startdate) / Interval::SECS_PER_HOUR;
+	return Timestamp::GetEpochSeconds(enddate) / Interval::DUCKDB_SECS_PER_HOUR -
+	       Timestamp::GetEpochSeconds(startdate) / Interval::DUCKDB_SECS_PER_HOUR;
 }
 
 // TIME specialisations
@@ -283,22 +283,22 @@ int64_t DateDiff::MicrosecondsOperator::Operation(dtime_t startdate, dtime_t end
 
 template <>
 int64_t DateDiff::MillisecondsOperator::Operation(dtime_t startdate, dtime_t enddate) {
-	return enddate.micros / Interval::MICROS_PER_MSEC - startdate.micros / Interval::MICROS_PER_MSEC;
+	return enddate.micros / Interval::DUCKDB_MICROS_PER_MSEC - startdate.micros / Interval::DUCKDB_MICROS_PER_MSEC;
 }
 
 template <>
 int64_t DateDiff::SecondsOperator::Operation(dtime_t startdate, dtime_t enddate) {
-	return enddate.micros / Interval::MICROS_PER_SEC - startdate.micros / Interval::MICROS_PER_SEC;
+	return enddate.micros / Interval::DUCKDB_MICROS_PER_SEC - startdate.micros / Interval::DUCKDB_MICROS_PER_SEC;
 }
 
 template <>
 int64_t DateDiff::MinutesOperator::Operation(dtime_t startdate, dtime_t enddate) {
-	return enddate.micros / Interval::MICROS_PER_MINUTE - startdate.micros / Interval::MICROS_PER_MINUTE;
+	return enddate.micros / Interval::DUCKDB_MICROS_PER_MINUTE - startdate.micros / Interval::DUCKDB_MICROS_PER_MINUTE;
 }
 
 template <>
 int64_t DateDiff::HoursOperator::Operation(dtime_t startdate, dtime_t enddate) {
-	return enddate.micros / Interval::MICROS_PER_HOUR - startdate.micros / Interval::MICROS_PER_HOUR;
+	return enddate.micros / Interval::DUCKDB_MICROS_PER_HOUR - startdate.micros / Interval::DUCKDB_MICROS_PER_HOUR;
 }
 
 template <typename TA, typename TB, typename TR>

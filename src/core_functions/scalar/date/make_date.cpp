@@ -63,12 +63,12 @@ struct MakeTimeOperator {
 		auto mm_32 = Cast::Operation<MM, int32_t>(mm);
 		// Have to check this separately because safe casting of DOUBLE => INT32 can round.
 		int32_t ss_32 = 0;
-		if (ss < 0 || ss > Interval::SECS_PER_MINUTE) {
+		if (ss < 0 || ss > Interval::DUCKDB_SECS_PER_MINUTE) {
 			ss_32 = Cast::Operation<SS, int32_t>(ss);
 		} else {
 			ss_32 = LossyNumericCast<int32_t>(ss);
 		}
-		auto micros = LossyNumericCast<int32_t>(std::round((ss - ss_32) * Interval::MICROS_PER_SEC));
+		auto micros = LossyNumericCast<int32_t>(std::round((ss - ss_32) * Interval::DUCKDB_MICROS_PER_SEC));
 
 		if (!Time::IsValidTime(hh_32, mm_32, ss_32, micros)) {
 			throw ConversionException("Time out of range: %d:%d:%d.%d", hh_32, mm_32, ss_32, micros);

@@ -268,19 +268,19 @@ timestamp_t MakeTimestampNice(int32_t year, int32_t month, int32_t day, int32_t 
 			NextDay(year, month, day);
 			hour = minute = sec = micros = 0;
 		}
-	} else if (step.days > 0 || step.micros >= Interval::MICROS_PER_HOUR) {
+	} else if (step.days > 0 || step.micros >= Interval::DUCKDB_MICROS_PER_HOUR) {
 		// if the step involves more than one hour, ceil to hours
 		if (minute > 0 || sec > 0 || micros > 0) {
 			NextHour(year, month, day, hour);
 			minute = sec = micros = 0;
 		}
-	} else if (step.micros >= Interval::MICROS_PER_MINUTE) {
+	} else if (step.micros >= Interval::DUCKDB_MICROS_PER_MINUTE) {
 		// if the step involves more than one minute, ceil to minutes
 		if (sec > 0 || micros > 0) {
 			NextMinute(year, month, day, hour, minute);
 			sec = micros = 0;
 		}
-	} else if (step.micros >= Interval::MICROS_PER_SEC) {
+	} else if (step.micros >= Interval::DUCKDB_MICROS_PER_SEC) {
 		// if the step involves more than one second, ceil to seconds
 		if (micros > 0) {
 			NextSecond(year, month, day, hour, minute, sec);
@@ -302,21 +302,21 @@ interval_t MakeIntervalNice(interval_t interval) {
 	} else if (interval.months > 0 || interval.days >= 5) {
 		// if we have any months or more than 5 days, we don't care about micros
 		interval.micros = 0;
-	} else if (interval.days > 0 || interval.micros >= 6 * Interval::MICROS_PER_HOUR) {
+	} else if (interval.days > 0 || interval.micros >= 6 * Interval::DUCKDB_MICROS_PER_HOUR) {
 		// if we any days or more than 6 hours, we want micros to be roundable by hours at least
-		interval.micros = RoundNumberToDivisor(interval.micros, Interval::MICROS_PER_HOUR);
-	} else if (interval.micros >= Interval::MICROS_PER_HOUR) {
+		interval.micros = RoundNumberToDivisor(interval.micros, Interval::DUCKDB_MICROS_PER_HOUR);
+	} else if (interval.micros >= Interval::DUCKDB_MICROS_PER_HOUR) {
 		// if we have more than an hour, we want micros to be divisible by quarter hours
-		interval.micros = RoundNumberToDivisor(interval.micros, Interval::MICROS_PER_MINUTE * 15);
-	} else if (interval.micros >= Interval::MICROS_PER_MINUTE * 10) {
+		interval.micros = RoundNumberToDivisor(interval.micros, Interval::DUCKDB_MICROS_PER_MINUTE * 15);
+	} else if (interval.micros >= Interval::DUCKDB_MICROS_PER_MINUTE * 10) {
 		// if we have more than 10 minutes, we want micros to be divisible by minutes
-		interval.micros = RoundNumberToDivisor(interval.micros, Interval::MICROS_PER_MINUTE);
-	} else if (interval.micros >= Interval::MICROS_PER_MINUTE) {
+		interval.micros = RoundNumberToDivisor(interval.micros, Interval::DUCKDB_MICROS_PER_MINUTE);
+	} else if (interval.micros >= Interval::DUCKDB_MICROS_PER_MINUTE) {
 		// if we have more than a minute, we want micros to be divisible by quarter minutes
-		interval.micros = RoundNumberToDivisor(interval.micros, Interval::MICROS_PER_SEC * 15);
-	} else if (interval.micros >= Interval::MICROS_PER_SEC * 10) {
+		interval.micros = RoundNumberToDivisor(interval.micros, Interval::DUCKDB_MICROS_PER_SEC * 15);
+	} else if (interval.micros >= Interval::DUCKDB_MICROS_PER_SEC * 10) {
 		// if we have more than 10 seconds, we want micros to be divisible by seconds
-		interval.micros = RoundNumberToDivisor(interval.micros, Interval::MICROS_PER_SEC);
+		interval.micros = RoundNumberToDivisor(interval.micros, Interval::DUCKDB_MICROS_PER_SEC);
 	}
 	return interval;
 }
@@ -360,11 +360,11 @@ struct EquiWidthBinsTimestamp {
 		// get the interval differences per component
 		// note: these can be negative (except for the largest non-zero difference)
 		interval_t interval_diff;
-		interval_diff.months = (max_year - min_year) * Interval::MONTHS_PER_YEAR + (max_month - min_month);
+		interval_diff.months = (max_year - min_year) * Interval::DUCKDB_MONTHS_PER_YEAR + (max_month - min_month);
 		interval_diff.days = max_day - min_day;
-		interval_diff.micros = (max_hour - min_hour) * Interval::MICROS_PER_HOUR +
-		                       (max_minute - min_minute) * Interval::MICROS_PER_MINUTE +
-		                       (max_sec - min_sec) * Interval::MICROS_PER_SEC + (max_micros - min_micros);
+		interval_diff.micros = (max_hour - min_hour) * Interval::DUCKDB_MICROS_PER_HOUR +
+		                       (max_minute - min_minute) * Interval::DUCKDB_MICROS_PER_MINUTE +
+		                       (max_sec - min_sec) * Interval::DUCKDB_MICROS_PER_SEC + (max_micros - min_micros);
 
 		double step_months = static_cast<double>(interval_diff.months) / static_cast<double>(bin_count);
 		double step_days = static_cast<double>(interval_diff.days) / static_cast<int32_t>(bin_count);
@@ -373,11 +373,11 @@ struct EquiWidthBinsTimestamp {
 		// becomes 6 days)
 		if (step_months > 0) {
 			double overflow_months = step_months - std::floor(step_months);
-			step_days += overflow_months * Interval::DAYS_PER_MONTH;
+			step_days += overflow_months * Interval::DUCKDB_DAYS_PER_MONTH;
 		}
 		if (step_days > 0) {
 			double overflow_days = step_days - std::floor(step_days);
-			step_micros += overflow_days * Interval::MICROS_PER_DAY;
+			step_micros += overflow_days * Interval::DUCKDB_MICROS_PER_DAY;
 		}
 		interval_t step;
 		step.months = static_cast<int32_t>(step_months);

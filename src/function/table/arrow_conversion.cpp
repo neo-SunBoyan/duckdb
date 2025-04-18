@@ -532,7 +532,7 @@ static void IntervalConversionMonthDayNanos(Vector &vector, ArrowArray &array, c
 	    ArrowBufferData<ArrowInterval>(array, 1) + GetEffectiveOffset(array, parent_offset, scan_state, nested_offset);
 	for (idx_t row = 0; row < size; row++) {
 		tgt_ptr[row].days = src_ptr[row].days;
-		tgt_ptr[row].micros = src_ptr[row].nanoseconds / Interval::NANOS_PER_MICRO;
+		tgt_ptr[row].micros = src_ptr[row].nanoseconds / Interval::DUCKDB_NANOS_PER_MICRO;
 		tgt_ptr[row].months = src_ptr[row].months;
 	}
 }
