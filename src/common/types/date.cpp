@@ -422,16 +422,16 @@ int32_t Date::EpochDays(date_t date) {
 }
 
 date_t Date::EpochToDate(int64_t epoch) {
-	return date_t(UnsafeNumericCast<int32_t>(epoch / Interval::SECS_PER_DAY));
+	return date_t(UnsafeNumericCast<int32_t>(epoch / Interval::DUCKDB_SECS_PER_DAY));
 }
 
 int64_t Date::Epoch(date_t date) {
-	return ((int64_t)date.days) * Interval::SECS_PER_DAY;
+	return ((int64_t)date.days) * Interval::DUCKDB_SECS_PER_DAY;
 }
 
 int64_t Date::EpochNanoseconds(date_t date) {
 	int64_t result;
-	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, Interval::MICROS_PER_DAY * 1000,
+	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, Interval::DUCKDB_MICROS_PER_DAY * 1000,
 	                                                               result)) {
 		throw ConversionException("Could not convert DATE (%s) to nanoseconds", Date::ToString(date));
 	}
@@ -440,7 +440,7 @@ int64_t Date::EpochNanoseconds(date_t date) {
 
 int64_t Date::EpochMicroseconds(date_t date) {
 	int64_t result;
-	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, Interval::MICROS_PER_DAY, result)) {
+	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, Interval::DUCKDB_MICROS_PER_DAY, result)) {
 		throw ConversionException("Could not convert DATE (%s) to microseconds", Date::ToString(date));
 	}
 	return result;
@@ -448,7 +448,7 @@ int64_t Date::EpochMicroseconds(date_t date) {
 
 int64_t Date::EpochMilliseconds(date_t date) {
 	int64_t result;
-	const auto MILLIS_PER_DAY = Interval::MICROS_PER_DAY / Interval::MICROS_PER_MSEC;
+	const auto MILLIS_PER_DAY = Interval::DUCKDB_MICROS_PER_DAY / Interval::DUCKDB_MICROS_PER_MSEC;
 	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, MILLIS_PER_DAY, result)) {
 		throw ConversionException("Could not convert DATE (%s) to milliseconds", Date::ToString(date));
 	}

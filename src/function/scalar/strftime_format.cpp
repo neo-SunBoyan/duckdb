@@ -160,7 +160,7 @@ idx_t StrfTimeFormat::GetLength(date_t date, dtime_t time, int32_t utc_offset, c
 		int32_t data[8];
 		Date::Convert(date, data[0], data[1], data[2]);
 		Time::Convert(time, data[3], data[4], data[5], data[6]);
-		data[6] *= Interval::NANOS_PER_MICRO;
+		data[6] *= Interval::DUCKDB_NANOS_PER_MICRO;
 		data[7] = utc_offset;
 		return GetLength(date, data, tz_name);
 	}
@@ -356,17 +356,17 @@ char *StrfTimeFormat::WriteStandardSpecifier(StrTimeSpecifier specifier, int32_t
 		target = WritePadded(target, UnsafeNumericCast<uint32_t>(data[6]), 9);
 		break;
 	case StrTimeSpecifier::MICROSECOND_PADDED:
-		target = WritePadded(target, UnsafeNumericCast<uint32_t>(data[6] / Interval::NANOS_PER_MICRO), 6);
+		target = WritePadded(target, UnsafeNumericCast<uint32_t>(data[6] / Interval::DUCKDB_NANOS_PER_MICRO), 6);
 		break;
 	case StrTimeSpecifier::MILLISECOND_PADDED:
-		target = WritePadded3(target, UnsafeNumericCast<uint32_t>(data[6] / Interval::NANOS_PER_MSEC));
+		target = WritePadded3(target, UnsafeNumericCast<uint32_t>(data[6] / Interval::DUCKDB_NANOS_PER_MSEC));
 		break;
 	case StrTimeSpecifier::UTC_OFFSET: {
 		*target++ = (data[7] < 0) ? '-' : '+';
 
 		auto offset = abs(data[7]);
-		auto offset_hours = offset / Interval::MINS_PER_HOUR;
-		auto offset_minutes = offset % Interval::MINS_PER_HOUR;
+		auto offset_hours = offset / Interval::DUCKDB_MINS_PER_HOUR;
+		auto offset_minutes = offset % Interval::DUCKDB_MINS_PER_HOUR;
 		target = WritePadded2(target, UnsafeNumericCast<uint32_t>(offset_hours));
 		if (offset_minutes) {
 			*target++ = ':';
@@ -438,9 +438,9 @@ void StrfTimeFormat::FormatStringNS(date_t date, int32_t data[8], const char *tz
 }
 
 void StrfTimeFormat::FormatString(date_t date, int32_t data[8], const char *tz_name, char *target) {
-	data[6] *= Interval::NANOS_PER_MICRO;
+	data[6] *= Interval::DUCKDB_NANOS_PER_MICRO;
 	FormatStringNS(date, data, tz_name, target);
-	data[6] /= Interval::NANOS_PER_MICRO;
+	data[6] /= Interval::DUCKDB_NANOS_PER_MICRO;
 }
 
 void StrfTimeFormat::FormatString(date_t date, dtime_t time, char *target) {
@@ -679,7 +679,7 @@ string_t StrfTimeFormat::ConvertTimestampValue(const timestamp_t &input, Vector 
 		int32_t data[8]; // year, month, day, hour, min, sec, ns, offset
 		Date::Convert(date, data[0], data[1], data[2]);
 		Time::Convert(time, data[3], data[4], data[5], data[6]);
-		data[6] *= Interval::NANOS_PER_MICRO;
+		data[6] *= Interval::DUCKDB_NANOS_PER_MICRO;
 		data[7] = 0;
 		const char *tz_name = nullptr;
 
@@ -703,7 +703,7 @@ string_t StrfTimeFormat::ConvertTimestampValue(const timestamp_ns_t &input, Vect
 		int32_t data[8]; // year, month, day, hour, min, sec, ns, offset
 		Date::Convert(date, data[0], data[1], data[2]);
 		Time::Convert(time, data[3], data[4], data[5], data[6]);
-		data[6] *= Interval::NANOS_PER_MICRO;
+		data[6] *= Interval::DUCKDB_NANOS_PER_MICRO;
 		data[6] += nanos;
 		data[7] = 0;
 		const char *tz_name = nullptr;
@@ -1069,19 +1069,19 @@ bool StrpTimeFormat::Parse(const char *data, size_t size, ParseResult &result, b
 				result_data[5] = UnsafeNumericCast<int32_t>(number);
 				break;
 			case StrTimeSpecifier::NANOSECOND_PADDED:
-				D_ASSERT(number < Interval::NANOS_PER_SEC); // enforced by the length of the number
+				D_ASSERT(number < Interval::DUCKDB_NANOS_PER_SEC); // enforced by the length of the number
 				// nanoseconds
 				result_data[6] = UnsafeNumericCast<int32_t>(number);
 				break;
 			case StrTimeSpecifier::MICROSECOND_PADDED:
-				D_ASSERT(number < Interval::MICROS_PER_SEC); // enforced by the length of the number
+				D_ASSERT(number < Interval::DUCKDB_MICROS_PER_SEC); // enforced by the length of the number
 				// nanoseconds
-				result_data[6] = UnsafeNumericCast<int32_t>(number * Interval::NANOS_PER_MICRO);
+				result_data[6] = UnsafeNumericCast<int32_t>(number * Interval::DUCKDB_NANOS_PER_MICRO);
 				break;
 			case StrTimeSpecifier::MILLISECOND_PADDED:
-				D_ASSERT(number < Interval::MSECS_PER_SEC); // enforced by the length of the number
+				D_ASSERT(number < Interval::DUCKDB_MSECS_PER_SEC); // enforced by the length of the number
 				// nanoseconds
-				result_data[6] = UnsafeNumericCast<int32_t>(number * Interval::NANOS_PER_MSEC);
+				result_data[6] = UnsafeNumericCast<int32_t>(number * Interval::DUCKDB_NANOS_PER_MSEC);
 				break;
 			case StrTimeSpecifier::WEEK_NUMBER_PADDED_SUN_FIRST:
 			case StrTimeSpecifier::WEEK_NUMBER_PADDED_MON_FIRST:
@@ -1277,7 +1277,7 @@ bool StrpTimeFormat::Parse(const char *data, size_t size, ParseResult &result, b
 					error_position = pos;
 					return false;
 				}
-				result_data[7] = hour_offset * Interval::MINS_PER_HOUR + minute_offset;
+				result_data[7] = hour_offset * Interval::DUCKDB_MINS_PER_HOUR + minute_offset;
 				break;
 			}
 			case StrTimeSpecifier::TZ_NAME: {
@@ -1436,18 +1436,18 @@ bool StrpTimeFormat::ParseResult::TryToDate(date_t &result) {
 }
 
 int32_t StrpTimeFormat::ParseResult::GetMicros() const {
-	return UnsafeNumericCast<int32_t>((data[6] + Interval::NANOS_PER_MICRO / 2) / Interval::NANOS_PER_MICRO);
+	return UnsafeNumericCast<int32_t>((data[6] + Interval::DUCKDB_NANOS_PER_MICRO / 2) / Interval::DUCKDB_NANOS_PER_MICRO);
 }
 
 dtime_t StrpTimeFormat::ParseResult::ToTime() {
-	const auto hour_offset = data[7] / Interval::MINS_PER_HOUR;
-	const auto mins_offset = data[7] % Interval::MINS_PER_HOUR;
+	const auto hour_offset = data[7] / Interval::DUCKDB_MINS_PER_HOUR;
+	const auto mins_offset = data[7] % Interval::DUCKDB_MINS_PER_HOUR;
 	return Time::FromTime(data[3] - hour_offset, data[4] - mins_offset, data[5], GetMicros());
 }
 
 int64_t StrpTimeFormat::ParseResult::ToTimeNS() {
-	const int32_t hour_offset = data[7] / Interval::MINS_PER_HOUR;
-	const int32_t mins_offset = data[7] % Interval::MINS_PER_HOUR;
+	const int32_t hour_offset = data[7] / Interval::DUCKDB_MINS_PER_HOUR;
+	const int32_t mins_offset = data[7] % Interval::DUCKDB_MINS_PER_HOUR;
 	return Time::ToNanoTime(data[3] - hour_offset, data[4] - mins_offset, data[5], data[6]);
 }
 
@@ -1491,13 +1491,13 @@ timestamp_ns_t StrpTimeFormat::ParseResult::ToTimestampNS() {
 		} else if (special == date_t::ninfinity()) {
 			result.value = timestamp_t::ninfinity().value;
 		} else {
-			result.value = special.days * Interval::NANOS_PER_DAY;
+			result.value = special.days * Interval::DUCKDB_NANOS_PER_DAY;
 		}
 	} else {
 		// Don't use rounded µs
 		const auto date = ToDate();
 		const auto time = ToTimeNS();
-		if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, Interval::NANOS_PER_DAY,
+		if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, Interval::DUCKDB_NANOS_PER_DAY,
 		                                                               result.value)) {
 			throw ConversionException("Date out of nanosecond range: %d-%d-%d", data[0], data[1], data[2]);
 		}
@@ -1517,7 +1517,7 @@ bool StrpTimeFormat::ParseResult::TryToTimestampNS(timestamp_ns_t &result) {
 
 	// Don't use rounded µs
 	const auto time = ToTimeNS();
-	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, Interval::NANOS_PER_DAY, result.value)) {
+	if (!TryMultiplyOperator::Operation<int64_t, int64_t, int64_t>(date.days, Interval::DUCKDB_NANOS_PER_DAY, result.value)) {
 		return false;
 	}
 	if (!TryAddOperator::Operation<int64_t, int64_t, int64_t>(result.value, time, result.value)) {

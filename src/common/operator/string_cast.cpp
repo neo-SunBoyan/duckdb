@@ -209,18 +209,18 @@ string_t StringCastTZ::Operation(dtime_tz_t input, Vector &vector) {
 	++length;
 
 	auto ss = std::abs(offset);
-	const auto hh = ss / Interval::SECS_PER_HOUR;
+	const auto hh = ss / Interval::DUCKDB_SECS_PER_HOUR;
 
 	const auto hh_length = UnsafeNumericCast<idx_t>((hh < 100) ? 2 : NumericHelper::UnsignedLength(uint32_t(hh)));
 	length += hh_length;
 
-	ss %= Interval::SECS_PER_HOUR;
-	const auto mm = ss / Interval::SECS_PER_MINUTE;
+	ss %= Interval::DUCKDB_SECS_PER_HOUR;
+	const auto mm = ss / Interval::DUCKDB_SECS_PER_MINUTE;
 	if (mm) {
 		length += 3;
 	}
 
-	ss %= Interval::SECS_PER_MINUTE;
+	ss %= Interval::DUCKDB_SECS_PER_MINUTE;
 	if (ss) {
 		length += 3;
 	}

@@ -105,7 +105,7 @@ bool Time::TryConvertInternal(const char *buf, idx_t len, idx_t &pos, dtime_t &r
 		int32_t mult = 100000;
 		if (nanos) {
 			// do we expect nanoseconds?
-			mult *= Interval::NANOS_PER_MICRO;
+			mult *= Interval::DUCKDB_NANOS_PER_MICRO;
 		}
 		for (; pos < len && StringUtil::CharacterIsDigit(buf[pos]); pos++, mult /= 10) {
 			if (mult > 0) {
@@ -113,8 +113,8 @@ bool Time::TryConvertInternal(const char *buf, idx_t len, idx_t &pos, dtime_t &r
 			}
 		}
 		if (nanos) {
-			*nanos = UnsafeNumericCast<int32_t>(micros % Interval::NANOS_PER_MICRO);
-			micros /= Interval::NANOS_PER_MICRO;
+			*nanos = UnsafeNumericCast<int32_t>(micros % Interval::DUCKDB_NANOS_PER_MICRO);
+			micros /= Interval::DUCKDB_NANOS_PER_MICRO;
 		}
 	}
 
@@ -155,7 +155,7 @@ bool Time::TryConvertTime(const char *buf, idx_t len, idx_t &pos, dtime_t &resul
 		}
 		return false;
 	}
-	return result.micros <= Interval::MICROS_PER_DAY;
+	return result.micros <= Interval::DUCKDB_MICROS_PER_DAY;
 }
 
 bool Time::TryConvertTimeTZ(const char *buf, idx_t len, idx_t &pos, dtime_tz_t &result, bool &has_offset, bool strict,
@@ -191,7 +191,7 @@ bool Time::TryConvertTimeTZ(const char *buf, idx_t len, idx_t &pos, dtime_tz_t &
 	}
 
 	//	Offsets are in seconds in the open interval (-16:00:00, +16:00:00)
-	int32_t offset = ((hh * Interval::MINS_PER_HOUR) + mm) * Interval::SECS_PER_MINUTE;
+	int32_t offset = ((hh * Interval::DUCKDB_MINS_PER_HOUR) + mm) * Interval::DUCKDB_SECS_PER_MINUTE;
 
 	//	Check for trailing seconds.
 	//	(PG claims they don't support this but they do...)
@@ -227,7 +227,7 @@ bool Time::TryConvertTimeTZ(const char *buf, idx_t len, idx_t &pos, dtime_tz_t &
 
 dtime_t Time::NormalizeTimeTZ(dtime_tz_t timetz) {
 	date_t date(0);
-	return Interval::Add(timetz.time(), {0, 0, -timetz.offset() * Interval::MICROS_PER_SEC}, date);
+	return Interval::Add(timetz.time(), {0, 0, -timetz.offset() * Interval::DUCKDB_MICROS_PER_SEC}, date);
 }
 
 string Time::ConversionError(const string &str) {
@@ -265,7 +265,7 @@ string Time::ToString(dtime_t time) {
 }
 
 string Time::ToUTCOffset(int hour_offset, int minute_offset) {
-	dtime_t time((hour_offset * Interval::MINS_PER_HOUR + minute_offset) * Interval::MICROS_PER_MINUTE);
+	dtime_t time((hour_offset * Interval::DUCKDB_MINS_PER_HOUR + minute_offset) * Interval::DUCKDB_MICROS_PER_MINUTE);
 
 	char buffer[1 + 2 + 1 + 2];
 	idx_t length = 0;
@@ -289,18 +289,18 @@ string Time::ToUTCOffset(int hour_offset, int minute_offset) {
 dtime_t Time::FromTime(int32_t hour, int32_t minute, int32_t second, int32_t microseconds) {
 	int64_t result;
 	result = hour;                                             // hours
-	result = result * Interval::MINS_PER_HOUR + minute;        // hours -> minutes
-	result = result * Interval::SECS_PER_MINUTE + second;      // minutes -> seconds
-	result = result * Interval::MICROS_PER_SEC + microseconds; // seconds -> microseconds
+	result = result * Interval::DUCKDB_MINS_PER_HOUR + minute;        // hours -> minutes
+	result = result * Interval::DUCKDB_SECS_PER_MINUTE + second;      // minutes -> seconds
+	result = result * Interval::DUCKDB_MICROS_PER_SEC + microseconds; // seconds -> microseconds
 	return dtime_t(result);
 }
 
 int64_t Time::ToNanoTime(int32_t hour, int32_t minute, int32_t second, int32_t nanoseconds) {
 	int64_t result;
 	result = hour;                                           // hours
-	result = result * Interval::MINS_PER_HOUR + minute;      // hours -> minutes
-	result = result * Interval::SECS_PER_MINUTE + second;    // minutes -> seconds
-	result = result * Interval::NANOS_PER_SEC + nanoseconds; // seconds -> nanoseconds
+	result = result * Interval::DUCKDB_MINS_PER_HOUR + minute;      // hours -> minutes
+	result = result * Interval::DUCKDB_SECS_PER_MINUTE + second;    // minutes -> seconds
+	result = result * Interval::DUCKDB_NANOS_PER_SEC + nanoseconds; // seconds -> nanoseconds
 	return result;
 }
 
@@ -322,26 +322,26 @@ bool Time::IsValidTime(int32_t hour, int32_t minute, int32_t second, int32_t mic
 
 void Time::Convert(dtime_t dtime, int32_t &hour, int32_t &min, int32_t &sec, int32_t &micros) {
 	int64_t time = dtime.micros;
-	hour = int32_t(time / Interval::MICROS_PER_HOUR);
-	time -= int64_t(hour) * Interval::MICROS_PER_HOUR;
-	min = int32_t(time / Interval::MICROS_PER_MINUTE);
-	time -= int64_t(min) * Interval::MICROS_PER_MINUTE;
-	sec = int32_t(time / Interval::MICROS_PER_SEC);
-	time -= int64_t(sec) * Interval::MICROS_PER_SEC;
+	hour = int32_t(time / Interval::DUCKDB_MICROS_PER_HOUR);
+	time -= int64_t(hour) * Interval::DUCKDB_MICROS_PER_HOUR;
+	min = int32_t(time / Interval::DUCKDB_MICROS_PER_MINUTE);
+	time -= int64_t(min) * Interval::DUCKDB_MICROS_PER_MINUTE;
+	sec = int32_t(time / Interval::DUCKDB_MICROS_PER_SEC);
+	time -= int64_t(sec) * Interval::DUCKDB_MICROS_PER_SEC;
 	micros = int32_t(time);
 	D_ASSERT(Time::IsValidTime(hour, min, sec, micros));
 }
 
 dtime_t Time::FromTimeMs(int64_t time_ms) {
 	int64_t result;
-	if (!TryMultiplyOperator::Operation(time_ms, Interval::MICROS_PER_MSEC, result)) {
+	if (!TryMultiplyOperator::Operation(time_ms, Interval::DUCKDB_MICROS_PER_MSEC, result)) {
 		throw ConversionException("Could not convert Time(MS) to Time(US)");
 	}
 	return dtime_t(result);
 }
 
 dtime_t Time::FromTimeNs(int64_t time_ns) {
-	return dtime_t(time_ns / Interval::NANOS_PER_MICRO);
+	return dtime_t(time_ns / Interval::DUCKDB_NANOS_PER_MICRO);
 }
 
 } // namespace duckdb

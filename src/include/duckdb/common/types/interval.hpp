@@ -86,38 +86,38 @@ struct interval_t { // NOLINT
 //! type.
 class Interval {
 public:
-	static constexpr const int32_t MONTHS_PER_MILLENIUM = 12000;
-	static constexpr const int32_t MONTHS_PER_CENTURY = 1200;
-	static constexpr const int32_t MONTHS_PER_DECADE = 120;
-	static constexpr const int32_t MONTHS_PER_YEAR = 12;
-	static constexpr const int32_t MONTHS_PER_QUARTER = 3;
-	static constexpr const int32_t DAYS_PER_WEEK = 7;
+	static constexpr const int32_t DUCKDB_MONTHS_PER_MILLENIUM = 12000;
+	static constexpr const int32_t DUCKDB_MONTHS_PER_CENTURY = 1200;
+	static constexpr const int32_t DUCKDB_MONTHS_PER_DECADE = 120;
+	static constexpr const int32_t DUCKDB_MONTHS_PER_YEAR = 12;
+	static constexpr const int32_t DUCKDB_MONTHS_PER_QUARTER = 3;
+	static constexpr const int32_t DUCKDB_DAYS_PER_WEEK = 7;
 	//! only used for interval comparison/ordering purposes, in which case a month counts as 30 days
-	static constexpr const int64_t DAYS_PER_MONTH = 30;
-	static constexpr const int64_t DAYS_PER_YEAR = 365;
-	static constexpr const int64_t MSECS_PER_SEC = 1000;
-	static constexpr const int32_t SECS_PER_MINUTE = 60;
-	static constexpr const int32_t MINS_PER_HOUR = 60;
-	static constexpr const int32_t HOURS_PER_DAY = 24;
-	static constexpr const int32_t SECS_PER_HOUR = SECS_PER_MINUTE * MINS_PER_HOUR;
-	static constexpr const int32_t SECS_PER_DAY = SECS_PER_HOUR * HOURS_PER_DAY;
-	static constexpr const int32_t SECS_PER_WEEK = SECS_PER_DAY * DAYS_PER_WEEK;
+	static constexpr const int64_t DUCKDB_DAYS_PER_MONTH = 30;
+	static constexpr const int64_t DUCKDB_DAYS_PER_YEAR = 365;
+	static constexpr const int64_t DUCKDB_MSECS_PER_SEC = 1000;
+	static constexpr const int32_t DUCKDB_SECS_PER_MINUTE = 60;
+	static constexpr const int32_t DUCKDB_MINS_PER_HOUR = 60;
+	static constexpr const int32_t DUCKDB_HOURS_PER_DAY = 24;
+	static constexpr const int32_t DUCKDB_SECS_PER_HOUR = DUCKDB_SECS_PER_MINUTE * DUCKDB_MINS_PER_HOUR;
+	static constexpr const int32_t DUCKDB_SECS_PER_DAY = DUCKDB_SECS_PER_HOUR * DUCKDB_HOURS_PER_DAY;
+	static constexpr const int32_t DUCKDB_SECS_PER_WEEK = DUCKDB_SECS_PER_DAY * DUCKDB_DAYS_PER_WEEK;
 
-	static constexpr const int64_t MICROS_PER_MSEC = 1000;
-	static constexpr const int64_t MICROS_PER_SEC = MICROS_PER_MSEC * MSECS_PER_SEC;
-	static constexpr const int64_t MICROS_PER_MINUTE = MICROS_PER_SEC * SECS_PER_MINUTE;
-	static constexpr const int64_t MICROS_PER_HOUR = MICROS_PER_MINUTE * MINS_PER_HOUR;
-	static constexpr const int64_t MICROS_PER_DAY = MICROS_PER_HOUR * HOURS_PER_DAY;
-	static constexpr const int64_t MICROS_PER_WEEK = MICROS_PER_DAY * DAYS_PER_WEEK;
-	static constexpr const int64_t MICROS_PER_MONTH = MICROS_PER_DAY * DAYS_PER_MONTH;
+	static constexpr const int64_t DUCKDB_MICROS_PER_MSEC = 1000;
+	static constexpr const int64_t DUCKDB_MICROS_PER_SEC = DUCKDB_MICROS_PER_MSEC * DUCKDB_MSECS_PER_SEC;
+	static constexpr const int64_t DUCKDB_MICROS_PER_MINUTE = DUCKDB_MICROS_PER_SEC * DUCKDB_SECS_PER_MINUTE;
+	static constexpr const int64_t DUCKDB_MICROS_PER_HOUR = DUCKDB_MICROS_PER_MINUTE * DUCKDB_MINS_PER_HOUR;
+	static constexpr const int64_t DUCKDB_MICROS_PER_DAY = DUCKDB_MICROS_PER_HOUR * DUCKDB_HOURS_PER_DAY;
+	static constexpr const int64_t DUCKDB_MICROS_PER_WEEK = DUCKDB_MICROS_PER_DAY * DUCKDB_DAYS_PER_WEEK;
+	static constexpr const int64_t DUCKDB_MICROS_PER_MONTH = DUCKDB_MICROS_PER_DAY * DUCKDB_DAYS_PER_MONTH;
 
-	static constexpr const int64_t NANOS_PER_MICRO = 1000;
-	static constexpr const int64_t NANOS_PER_MSEC = NANOS_PER_MICRO * MICROS_PER_MSEC;
-	static constexpr const int64_t NANOS_PER_SEC = NANOS_PER_MSEC * MSECS_PER_SEC;
-	static constexpr const int64_t NANOS_PER_MINUTE = NANOS_PER_SEC * SECS_PER_MINUTE;
-	static constexpr const int64_t NANOS_PER_HOUR = NANOS_PER_MINUTE * MINS_PER_HOUR;
-	static constexpr const int64_t NANOS_PER_DAY = NANOS_PER_HOUR * HOURS_PER_DAY;
-	static constexpr const int64_t NANOS_PER_WEEK = NANOS_PER_DAY * DAYS_PER_WEEK;
+	static constexpr const int64_t DUCKDB_NANOS_PER_MICRO = 1000;
+	static constexpr const int64_t DUCKDB_NANOS_PER_MSEC = DUCKDB_NANOS_PER_MICRO * DUCKDB_MICROS_PER_MSEC;
+	static constexpr const int64_t DUCKDB_NANOS_PER_SEC = DUCKDB_NANOS_PER_MSEC * DUCKDB_MSECS_PER_SEC;
+	static constexpr const int64_t DUCKDB_NANOS_PER_MINUTE = DUCKDB_NANOS_PER_SEC * DUCKDB_SECS_PER_MINUTE;
+	static constexpr const int64_t DUCKDB_NANOS_PER_HOUR = DUCKDB_NANOS_PER_MINUTE * DUCKDB_MINS_PER_HOUR;
+	static constexpr const int64_t DUCKDB_NANOS_PER_DAY = DUCKDB_NANOS_PER_HOUR * DUCKDB_HOURS_PER_DAY;
+	static constexpr const int64_t DUCKDB_NANOS_PER_WEEK = DUCKDB_NANOS_PER_DAY * DUCKDB_DAYS_PER_WEEK;
 
 public:
 	//! Convert a string to an interval object
@@ -167,13 +167,13 @@ public:
 };
 void interval_t::Normalize(int64_t &months, int64_t &days, int64_t &micros) const {
 	auto input = *this;
-	int64_t extra_months_d = input.days / Interval::DAYS_PER_MONTH;
-	int64_t extra_months_micros = input.micros / Interval::MICROS_PER_MONTH;
-	input.days -= UnsafeNumericCast<int32_t>(extra_months_d * Interval::DAYS_PER_MONTH);
-	input.micros -= extra_months_micros * Interval::MICROS_PER_MONTH;
+	int64_t extra_months_d = input.days / Interval::DUCKDB_DAYS_PER_MONTH;
+	int64_t extra_months_micros = input.micros / Interval::DUCKDB_MICROS_PER_MONTH;
+	input.days -= UnsafeNumericCast<int32_t>(extra_months_d * Interval::DUCKDB_DAYS_PER_MONTH);
+	input.micros -= extra_months_micros * Interval::DUCKDB_MICROS_PER_MONTH;
 
-	int64_t extra_days_micros = input.micros / Interval::MICROS_PER_DAY;
-	input.micros -= extra_days_micros * Interval::MICROS_PER_DAY;
+	int64_t extra_days_micros = input.micros / Interval::DUCKDB_MICROS_PER_DAY;
+	input.micros -= extra_days_micros * Interval::DUCKDB_MICROS_PER_DAY;
 
 	months = input.months + extra_months_d + extra_months_micros;
 	days = input.days + extra_days_micros;

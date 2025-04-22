@@ -271,7 +271,7 @@ struct DatePart {
 	struct QuarterOperator {
 		template <class TR>
 		static inline TR QuarterFromMonth(TR mm) {
-			return (mm - 1) / Interval::MONTHS_PER_QUARTER + 1;
+			return (mm - 1) / Interval::DUCKDB_MONTHS_PER_QUARTER + 1;
 		}
 
 		template <class TA, class TR>
@@ -422,7 +422,7 @@ struct DatePart {
 	struct NanosecondsOperator {
 		template <class TA, class TR>
 		static inline TR Operation(TA input) {
-			return MicrosecondsOperator::Operation<TA, TR>(input) * Interval::NANOS_PER_MICRO;
+			return MicrosecondsOperator::Operation<TA, TR>(input) * Interval::DUCKDB_NANOS_PER_MICRO;
 		}
 
 		template <class T>
@@ -532,7 +532,7 @@ struct DatePart {
 			auto time = Time::NormalizeTimeTZ(timetz);
 			date_t date(0);
 			time = Interval::Add(time, interval, date);
-			auto offset = UnsafeNumericCast<int32_t>(interval.micros / Interval::MICROS_PER_SEC);
+			auto offset = UnsafeNumericCast<int32_t>(interval.micros / Interval::DUCKDB_MICROS_PER_SEC);
 			return TR(time, offset);
 		}
 
@@ -782,7 +782,7 @@ int64_t DatePart::YearOperator::Operation(timestamp_t input) {
 
 template <>
 int64_t DatePart::YearOperator::Operation(interval_t input) {
-	return input.months / Interval::MONTHS_PER_YEAR;
+	return input.months / Interval::DUCKDB_MONTHS_PER_YEAR;
 }
 
 template <>
@@ -802,7 +802,7 @@ int64_t DatePart::MonthOperator::Operation(timestamp_t input) {
 
 template <>
 int64_t DatePart::MonthOperator::Operation(interval_t input) {
-	return input.months % Interval::MONTHS_PER_YEAR;
+	return input.months % Interval::DUCKDB_MONTHS_PER_YEAR;
 }
 
 template <>
@@ -837,7 +837,7 @@ int64_t DatePart::DayOperator::Operation(dtime_tz_t input) {
 
 template <>
 int64_t DatePart::DecadeOperator::Operation(interval_t input) {
-	return input.months / Interval::MONTHS_PER_DECADE;
+	return input.months / Interval::DUCKDB_MONTHS_PER_DECADE;
 }
 
 template <>
@@ -852,7 +852,7 @@ int64_t DatePart::DecadeOperator::Operation(dtime_tz_t input) {
 
 template <>
 int64_t DatePart::CenturyOperator::Operation(interval_t input) {
-	return input.months / Interval::MONTHS_PER_CENTURY;
+	return input.months / Interval::DUCKDB_MONTHS_PER_CENTURY;
 }
 
 template <>
@@ -867,7 +867,7 @@ int64_t DatePart::CenturyOperator::Operation(dtime_tz_t input) {
 
 template <>
 int64_t DatePart::MillenniumOperator::Operation(interval_t input) {
-	return input.months / Interval::MONTHS_PER_MILLENIUM;
+	return input.months / Interval::DUCKDB_MONTHS_PER_MILLENIUM;
 }
 
 template <>
@@ -887,7 +887,7 @@ int64_t DatePart::QuarterOperator::Operation(timestamp_t input) {
 
 template <>
 int64_t DatePart::QuarterOperator::Operation(interval_t input) {
-	return MonthOperator::Operation<interval_t, int64_t>(input) / Interval::MONTHS_PER_QUARTER + 1;
+	return MonthOperator::Operation<interval_t, int64_t>(input) / Interval::DUCKDB_MONTHS_PER_QUARTER + 1;
 }
 
 template <>
@@ -1041,7 +1041,7 @@ int64_t DatePart::EpochNanosecondsOperator::Operation(interval_t input) {
 
 template <>
 int64_t DatePart::EpochNanosecondsOperator::Operation(dtime_t input) {
-	return input.micros * Interval::NANOS_PER_MICRO;
+	return input.micros * Interval::DUCKDB_NANOS_PER_MICRO;
 }
 
 template <>
@@ -1087,7 +1087,7 @@ int64_t DatePart::EpochMillisOperator::Operation(interval_t input) {
 
 template <>
 int64_t DatePart::EpochMillisOperator::Operation(dtime_t input) {
-	return input.micros / Interval::MICROS_PER_MSEC;
+	return input.micros / Interval::DUCKDB_MICROS_PER_MSEC;
 }
 
 template <>
@@ -1105,7 +1105,7 @@ int64_t DatePart::NanosecondsOperator::Operation(timestamp_ns_t input) {
 	int32_t nanos;
 	Timestamp::Convert(input, date, time, nanos);
 	// remove everything but the second & nanosecond part
-	return (time.micros % Interval::MICROS_PER_MINUTE) * Interval::NANOS_PER_MICRO + nanos;
+	return (time.micros % Interval::DUCKDB_MICROS_PER_MINUTE) * Interval::DUCKDB_NANOS_PER_MICRO + nanos;
 }
 
 template <>
@@ -1113,19 +1113,19 @@ int64_t DatePart::MicrosecondsOperator::Operation(timestamp_t input) {
 	D_ASSERT(Timestamp::IsFinite(input));
 	auto time = Timestamp::GetTime(input);
 	// remove everything but the second & microsecond part
-	return time.micros % Interval::MICROS_PER_MINUTE;
+	return time.micros % Interval::DUCKDB_MICROS_PER_MINUTE;
 }
 
 template <>
 int64_t DatePart::MicrosecondsOperator::Operation(interval_t input) {
 	// remove everything but the second & microsecond part
-	return input.micros % Interval::MICROS_PER_MINUTE;
+	return input.micros % Interval::DUCKDB_MICROS_PER_MINUTE;
 }
 
 template <>
 int64_t DatePart::MicrosecondsOperator::Operation(dtime_t input) {
 	// remove everything but the second & microsecond part
-	return input.micros % Interval::MICROS_PER_MINUTE;
+	return input.micros % Interval::DUCKDB_MICROS_PER_MINUTE;
 }
 
 template <>
@@ -1136,17 +1136,17 @@ int64_t DatePart::MicrosecondsOperator::Operation(dtime_tz_t input) {
 template <>
 int64_t DatePart::MillisecondsOperator::Operation(timestamp_t input) {
 	D_ASSERT(Timestamp::IsFinite(input));
-	return MicrosecondsOperator::Operation<timestamp_t, int64_t>(input) / Interval::MICROS_PER_MSEC;
+	return MicrosecondsOperator::Operation<timestamp_t, int64_t>(input) / Interval::DUCKDB_MICROS_PER_MSEC;
 }
 
 template <>
 int64_t DatePart::MillisecondsOperator::Operation(interval_t input) {
-	return MicrosecondsOperator::Operation<interval_t, int64_t>(input) / Interval::MICROS_PER_MSEC;
+	return MicrosecondsOperator::Operation<interval_t, int64_t>(input) / Interval::DUCKDB_MICROS_PER_MSEC;
 }
 
 template <>
 int64_t DatePart::MillisecondsOperator::Operation(dtime_t input) {
-	return MicrosecondsOperator::Operation<dtime_t, int64_t>(input) / Interval::MICROS_PER_MSEC;
+	return MicrosecondsOperator::Operation<dtime_t, int64_t>(input) / Interval::DUCKDB_MICROS_PER_MSEC;
 }
 
 template <>
@@ -1157,17 +1157,17 @@ int64_t DatePart::MillisecondsOperator::Operation(dtime_tz_t input) {
 template <>
 int64_t DatePart::SecondsOperator::Operation(timestamp_t input) {
 	D_ASSERT(Timestamp::IsFinite(input));
-	return MicrosecondsOperator::Operation<timestamp_t, int64_t>(input) / Interval::MICROS_PER_SEC;
+	return MicrosecondsOperator::Operation<timestamp_t, int64_t>(input) / Interval::DUCKDB_MICROS_PER_SEC;
 }
 
 template <>
 int64_t DatePart::SecondsOperator::Operation(interval_t input) {
-	return MicrosecondsOperator::Operation<interval_t, int64_t>(input) / Interval::MICROS_PER_SEC;
+	return MicrosecondsOperator::Operation<interval_t, int64_t>(input) / Interval::DUCKDB_MICROS_PER_SEC;
 }
 
 template <>
 int64_t DatePart::SecondsOperator::Operation(dtime_t input) {
-	return MicrosecondsOperator::Operation<dtime_t, int64_t>(input) / Interval::MICROS_PER_SEC;
+	return MicrosecondsOperator::Operation<dtime_t, int64_t>(input) / Interval::DUCKDB_MICROS_PER_SEC;
 }
 
 template <>
@@ -1180,19 +1180,19 @@ int64_t DatePart::MinutesOperator::Operation(timestamp_t input) {
 	D_ASSERT(Timestamp::IsFinite(input));
 	auto time = Timestamp::GetTime(input);
 	// remove the hour part, and truncate to minutes
-	return (time.micros % Interval::MICROS_PER_HOUR) / Interval::MICROS_PER_MINUTE;
+	return (time.micros % Interval::DUCKDB_MICROS_PER_HOUR) / Interval::DUCKDB_MICROS_PER_MINUTE;
 }
 
 template <>
 int64_t DatePart::MinutesOperator::Operation(interval_t input) {
 	// remove the hour part, and truncate to minutes
-	return (input.micros % Interval::MICROS_PER_HOUR) / Interval::MICROS_PER_MINUTE;
+	return (input.micros % Interval::DUCKDB_MICROS_PER_HOUR) / Interval::DUCKDB_MICROS_PER_MINUTE;
 }
 
 template <>
 int64_t DatePart::MinutesOperator::Operation(dtime_t input) {
 	// remove the hour part, and truncate to minutes
-	return (input.micros % Interval::MICROS_PER_HOUR) / Interval::MICROS_PER_MINUTE;
+	return (input.micros % Interval::DUCKDB_MICROS_PER_HOUR) / Interval::DUCKDB_MICROS_PER_MINUTE;
 }
 
 template <>
@@ -1203,17 +1203,17 @@ int64_t DatePart::MinutesOperator::Operation(dtime_tz_t input) {
 template <>
 int64_t DatePart::HoursOperator::Operation(timestamp_t input) {
 	D_ASSERT(Timestamp::IsFinite(input));
-	return Timestamp::GetTime(input).micros / Interval::MICROS_PER_HOUR;
+	return Timestamp::GetTime(input).micros / Interval::DUCKDB_MICROS_PER_HOUR;
 }
 
 template <>
 int64_t DatePart::HoursOperator::Operation(interval_t input) {
-	return input.micros / Interval::MICROS_PER_HOUR;
+	return input.micros / Interval::DUCKDB_MICROS_PER_HOUR;
 }
 
 template <>
 int64_t DatePart::HoursOperator::Operation(dtime_t input) {
-	return input.micros / Interval::MICROS_PER_HOUR;
+	return input.micros / Interval::DUCKDB_MICROS_PER_HOUR;
 }
 
 template <>
@@ -1224,21 +1224,21 @@ int64_t DatePart::HoursOperator::Operation(dtime_tz_t input) {
 template <>
 double DatePart::EpochOperator::Operation(timestamp_t input) {
 	D_ASSERT(Timestamp::IsFinite(input));
-	return double(Timestamp::GetEpochMicroSeconds(input)) / double(Interval::MICROS_PER_SEC);
+	return double(Timestamp::GetEpochMicroSeconds(input)) / double(Interval::DUCKDB_MICROS_PER_SEC);
 }
 
 template <>
 double DatePart::EpochOperator::Operation(interval_t input) {
-	int64_t interval_years = input.months / Interval::MONTHS_PER_YEAR;
+	int64_t interval_years = input.months / Interval::DUCKDB_MONTHS_PER_YEAR;
 	int64_t interval_days;
-	interval_days = Interval::DAYS_PER_YEAR * interval_years;
-	interval_days += Interval::DAYS_PER_MONTH * (input.months % Interval::MONTHS_PER_YEAR);
+	interval_days = Interval::DUCKDB_DAYS_PER_YEAR * interval_years;
+	interval_days += Interval::DUCKDB_DAYS_PER_MONTH * (input.months % Interval::DUCKDB_MONTHS_PER_YEAR);
 	interval_days += input.days;
 	int64_t interval_epoch;
-	interval_epoch = interval_days * Interval::SECS_PER_DAY;
+	interval_epoch = interval_days * Interval::DUCKDB_SECS_PER_DAY;
 	// we add 0.25 days per year to sort of account for leap days
-	interval_epoch += interval_years * (Interval::SECS_PER_DAY / 4);
-	return double(interval_epoch) + double(input.micros) / double(Interval::MICROS_PER_SEC);
+	interval_epoch += interval_years * (Interval::DUCKDB_SECS_PER_DAY / 4);
+	return double(interval_epoch) + double(input.micros) / double(Interval::DUCKDB_MICROS_PER_SEC);
 }
 
 //	TODO: We can't propagate interval statistics because we can't easily compare interval_t for order.
@@ -1250,7 +1250,7 @@ unique_ptr<BaseStatistics> DatePart::EpochOperator::PropagateStatistics<interval
 
 template <>
 double DatePart::EpochOperator::Operation(dtime_t input) {
-	return double(input.micros) / double(Interval::MICROS_PER_SEC);
+	return double(input.micros) / double(Interval::DUCKDB_MICROS_PER_SEC);
 }
 
 template <>
@@ -1264,7 +1264,7 @@ unique_ptr<BaseStatistics> DatePart::EpochOperator::PropagateStatistics<dtime_t>
 	auto result = NumericStats::CreateEmpty(LogicalType::DOUBLE);
 	result.CopyValidity(input.child_stats[0]);
 	NumericStats::SetMin(result, Value::DOUBLE(0));
-	NumericStats::SetMax(result, Value::DOUBLE(Interval::SECS_PER_DAY));
+	NumericStats::SetMax(result, Value::DOUBLE(Interval::DUCKDB_SECS_PER_DAY));
 	return result.ToUnique();
 }
 
@@ -1316,7 +1316,7 @@ int64_t DatePart::TimezoneHourOperator::Operation(interval_t input) {
 
 template <>
 int64_t DatePart::TimezoneHourOperator::Operation(dtime_tz_t input) {
-	return input.offset() / Interval::SECS_PER_HOUR;
+	return input.offset() / Interval::DUCKDB_SECS_PER_HOUR;
 }
 
 template <>
@@ -1331,7 +1331,7 @@ int64_t DatePart::TimezoneMinuteOperator::Operation(interval_t input) {
 
 template <>
 int64_t DatePart::TimezoneMinuteOperator::Operation(dtime_tz_t input) {
-	return (input.offset() / Interval::SECS_PER_MINUTE) % Interval::MINS_PER_HOUR;
+	return (input.offset() / Interval::DUCKDB_SECS_PER_MINUTE) % Interval::DUCKDB_MINS_PER_HOUR;
 }
 
 template <>
@@ -1366,11 +1366,11 @@ void DatePart::StructOperator::Operation(bigint_vec &bigint_values, double_vec &
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::MILLISECONDS);
 		if (part_data) {
-			part_data[idx] = micros / Interval::MICROS_PER_MSEC;
+			part_data[idx] = micros / Interval::DUCKDB_MICROS_PER_MSEC;
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::SECOND);
 		if (part_data) {
-			part_data[idx] = micros / Interval::MICROS_PER_SEC;
+			part_data[idx] = micros / Interval::DUCKDB_MICROS_PER_SEC;
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::MINUTE);
 		if (part_data) {
@@ -1417,11 +1417,11 @@ void DatePart::StructOperator::Operation(bigint_vec &bigint_values, double_vec &
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::MILLISECONDS);
 		if (part_data) {
-			part_data[idx] = micros / Interval::MICROS_PER_MSEC;
+			part_data[idx] = micros / Interval::DUCKDB_MICROS_PER_MSEC;
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::SECOND);
 		if (part_data) {
-			part_data[idx] = micros / Interval::MICROS_PER_SEC;
+			part_data[idx] = micros / Interval::DUCKDB_MICROS_PER_SEC;
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::MINUTE);
 		if (part_data) {
@@ -1490,10 +1490,10 @@ void DatePart::StructOperator::Operation(bigint_vec &bigint_values, double_vec &
                                          const idx_t idx, const part_mask_t mask) {
 	int64_t *part_data;
 	if (mask & YMD) {
-		const auto mm = input.months % Interval::MONTHS_PER_YEAR;
+		const auto mm = input.months % Interval::DUCKDB_MONTHS_PER_YEAR;
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::YEAR);
 		if (part_data) {
-			part_data[idx] = input.months / Interval::MONTHS_PER_YEAR;
+			part_data[idx] = input.months / Interval::DUCKDB_MONTHS_PER_YEAR;
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::MONTH);
 		if (part_data) {
@@ -1505,19 +1505,19 @@ void DatePart::StructOperator::Operation(bigint_vec &bigint_values, double_vec &
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::DECADE);
 		if (part_data) {
-			part_data[idx] = input.months / Interval::MONTHS_PER_DECADE;
+			part_data[idx] = input.months / Interval::DUCKDB_MONTHS_PER_DECADE;
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::CENTURY);
 		if (part_data) {
-			part_data[idx] = input.months / Interval::MONTHS_PER_CENTURY;
+			part_data[idx] = input.months / Interval::DUCKDB_MONTHS_PER_CENTURY;
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::MILLENNIUM);
 		if (part_data) {
-			part_data[idx] = input.months / Interval::MONTHS_PER_MILLENIUM;
+			part_data[idx] = input.months / Interval::DUCKDB_MONTHS_PER_MILLENIUM;
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::QUARTER);
 		if (part_data) {
-			part_data[idx] = mm / Interval::MONTHS_PER_QUARTER + 1;
+			part_data[idx] = mm / Interval::DUCKDB_MONTHS_PER_QUARTER + 1;
 		}
 	}
 
@@ -1529,11 +1529,11 @@ void DatePart::StructOperator::Operation(bigint_vec &bigint_values, double_vec &
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::MILLISECONDS);
 		if (part_data) {
-			part_data[idx] = micros / Interval::MICROS_PER_MSEC;
+			part_data[idx] = micros / Interval::DUCKDB_MICROS_PER_MSEC;
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::SECOND);
 		if (part_data) {
-			part_data[idx] = micros / Interval::MICROS_PER_SEC;
+			part_data[idx] = micros / Interval::DUCKDB_MICROS_PER_SEC;
 		}
 		part_data = HasPartValue(bigint_values, DatePartSpecifier::MINUTE);
 		if (part_data) {

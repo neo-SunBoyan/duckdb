@@ -26,10 +26,12 @@ def run_benchmark(benchmark_abs_path, query, engine, from_disk):
         print(cmd)
     # os.system(cmd)
     results =  subprocess.getoutput(cmd)
-    pattern = '^[0-9]+\.[0-9]+$'
+    pattern = '^Result: ([0-9]+\.[0-9]+)$'
     found = False
     for result in results.split("\n"):
-        if(re.match(pattern, result)):
+        result = re.match(pattern, result)
+        if(result):
+            result = result.group(1)
             # if previously is already found, this means your benchmark might run the query several times
             if found:
                 raise Exception("The benchmark is already run. Please make sure that DEFAULT_NRUNS in benchmark.hpp is 0 (which means the benchmark only runs 1 time) ")

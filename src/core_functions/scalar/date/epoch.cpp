@@ -10,7 +10,7 @@ struct EpochSecOperator {
 	template <class INPUT_TYPE, class RESULT_TYPE>
 	static RESULT_TYPE Operation(INPUT_TYPE sec) {
 		int64_t result;
-		if (!TryCast::Operation(sec * Interval::MICROS_PER_SEC, result)) {
+		if (!TryCast::Operation(sec * Interval::DUCKDB_MICROS_PER_SEC, result)) {
 			throw ConversionException("Could not convert epoch seconds to TIMESTAMP WITH TIME ZONE");
 		}
 		return timestamp_t(result);

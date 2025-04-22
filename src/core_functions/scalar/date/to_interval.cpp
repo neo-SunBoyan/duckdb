@@ -17,7 +17,7 @@ struct ToMillenniaOperator {
 		interval_t result;
 		result.days = 0;
 		result.micros = 0;
-		if (!TryMultiplyOperator::Operation<TA, int32_t, int32_t>(input, Interval::MONTHS_PER_MILLENIUM,
+		if (!TryMultiplyOperator::Operation<TA, int32_t, int32_t>(input, Interval::DUCKDB_MONTHS_PER_MILLENIUM,
 		                                                          result.months)) {
 			throw OutOfRangeException("Interval value %s millennia out of range", NumericHelper::ToString(input));
 		}
@@ -31,7 +31,7 @@ struct ToCenturiesOperator {
 		interval_t result;
 		result.days = 0;
 		result.micros = 0;
-		if (!TryMultiplyOperator::Operation<TA, int32_t, int32_t>(input, Interval::MONTHS_PER_CENTURY, result.months)) {
+		if (!TryMultiplyOperator::Operation<TA, int32_t, int32_t>(input, Interval::DUCKDB_MONTHS_PER_CENTURY, result.months)) {
 			throw OutOfRangeException("Interval value %s centuries out of range", NumericHelper::ToString(input));
 		}
 		return result;
@@ -44,7 +44,7 @@ struct ToDecadesOperator {
 		interval_t result;
 		result.days = 0;
 		result.micros = 0;
-		if (!TryMultiplyOperator::Operation<TA, int32_t, int32_t>(input, Interval::MONTHS_PER_DECADE, result.months)) {
+		if (!TryMultiplyOperator::Operation<TA, int32_t, int32_t>(input, Interval::DUCKDB_MONTHS_PER_DECADE, result.months)) {
 			throw OutOfRangeException("Interval value %s decades out of range", NumericHelper::ToString(input));
 		}
 		return result;
@@ -57,7 +57,7 @@ struct ToYearsOperator {
 		interval_t result;
 		result.days = 0;
 		result.micros = 0;
-		if (!TryMultiplyOperator::Operation<int32_t, int32_t, int32_t>(input, Interval::MONTHS_PER_YEAR,
+		if (!TryMultiplyOperator::Operation<int32_t, int32_t, int32_t>(input, Interval::DUCKDB_MONTHS_PER_YEAR,
 		                                                               result.months)) {
 			throw OutOfRangeException("Interval value %d years out of range", input);
 		}
@@ -69,7 +69,7 @@ struct ToQuartersOperator {
 	template <class TA, class TR>
 	static inline TR Operation(TA input) {
 		interval_t result;
-		if (!TryMultiplyOperator::Operation<int32_t, int32_t, int32_t>(input, Interval::MONTHS_PER_QUARTER,
+		if (!TryMultiplyOperator::Operation<int32_t, int32_t, int32_t>(input, Interval::DUCKDB_MONTHS_PER_QUARTER,
 		                                                               result.months)) {
 			throw OutOfRangeException("Interval value %d quarters out of range", input);
 		}
@@ -95,7 +95,7 @@ struct ToWeeksOperator {
 	static inline TR Operation(TA input) {
 		interval_t result;
 		result.months = 0;
-		if (!TryMultiplyOperator::Operation<int32_t, int32_t, int32_t>(input, Interval::DAYS_PER_WEEK, result.days)) {
+		if (!TryMultiplyOperator::Operation<int32_t, int32_t, int32_t>(input, Interval::DUCKDB_DAYS_PER_WEEK, result.days)) {
 			throw OutOfRangeException("Interval value %d weeks out of range", input);
 		}
 		result.micros = 0;
@@ -120,7 +120,7 @@ struct ToHoursOperator {
 		interval_t result;
 		result.months = 0;
 		result.days = 0;
-		if (!TryMultiplyOperator::Operation<TA, int64_t, int64_t>(input, Interval::MICROS_PER_HOUR, result.micros)) {
+		if (!TryMultiplyOperator::Operation<TA, int64_t, int64_t>(input, Interval::DUCKDB_MICROS_PER_HOUR, result.micros)) {
 			throw OutOfRangeException("Interval value %s hours out of range", NumericHelper::ToString(input));
 		}
 		return result;
@@ -133,7 +133,7 @@ struct ToMinutesOperator {
 		interval_t result;
 		result.months = 0;
 		result.days = 0;
-		if (!TryMultiplyOperator::Operation<TA, int64_t, int64_t>(input, Interval::MICROS_PER_MINUTE, result.micros)) {
+		if (!TryMultiplyOperator::Operation<TA, int64_t, int64_t>(input, Interval::DUCKDB_MICROS_PER_MINUTE, result.micros)) {
 			throw OutOfRangeException("Interval value %s minutes out of range", NumericHelper::ToString(input));
 		}
 		return result;
@@ -146,7 +146,7 @@ struct ToMilliSecondsOperator {
 		interval_t result;
 		result.months = 0;
 		result.days = 0;
-		if (!TryMultiplyOperator::Operation<TA, int64_t, int64_t>(input, Interval::MICROS_PER_MSEC, result.micros)) {
+		if (!TryMultiplyOperator::Operation<TA, int64_t, int64_t>(input, Interval::DUCKDB_MICROS_PER_MSEC, result.micros)) {
 			throw OutOfRangeException("Interval value %s milliseconds out of range", NumericHelper::ToString(input));
 		}
 		return result;
