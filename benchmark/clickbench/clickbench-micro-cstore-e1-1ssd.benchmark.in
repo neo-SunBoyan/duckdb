@@ -2,12 +2,12 @@
 # description: ${DESCRIPTION}
 # group: [clickbench]
 
-require parquet
+require cstore
 
 name Q${QUERY_NUMBER_PADDED}
 group Clickbench
 
 load
-CREATE VIEW hits AS SELECT * FROM parquet_scan(["/data/9a3-01/clickbench/parquet-e0/hits/*"]);
+CREATE VIEW hits AS SELECT * FROM cstore_scan(["/data/9a3-01/clickbench/pixels-e1/hits/v-0-ordered/*"]);
 
 run benchmark/clickbench/queries-micro/q${QUERY_NUMBER_PADDED}.sql

@@ -2,7 +2,7 @@
 # description: ${DESCRIPTION}
 # group: [clickbench]
 
-require pixels
+require cstore
 
 name Q${QUERY_NUMBER_PADDED}
 group Clickbench
@@ -12,4 +12,4 @@ CREATE VIEW hits AS SELECT * FROM parquet_scan(["/data/9a3-01/clickbench/parquet
 
 run benchmark/clickbench/queries/q${QUERY_NUMBER_PADDED}.sql
 
-# result benchmark/clickbench/answers/q${QUERY_NUMBER_PADDED}.csv
+result benchmark/clickbench/answers/q${QUERY_NUMBER_PADDED}.csv

@@ -2,7 +2,7 @@
 # description: ${DESCRIPTION}
 # group: [clickbench]
 
-require pixels
+require parquet
 
 name Q${QUERY_NUMBER_PADDED}
 group Clickbench

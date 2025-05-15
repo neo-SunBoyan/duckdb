@@ -1,0 +1,6 @@
+# name: benchmark/clickbench/cstore/q30.benchmark
+# description: Run query 30 from the clickbench benchmark ()
+
+template benchmark/clickbench/clickbench-cstore.benchmark.in
+QUERY_NUMBER=30
+QUERY_NUMBER_PADDED=30
